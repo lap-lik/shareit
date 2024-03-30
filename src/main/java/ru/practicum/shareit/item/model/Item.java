@@ -13,6 +13,6 @@ import ru.practicum.shareit.user.model.User;
 public class Item extends BaseEntity {
     private String name;
     private String description;
-    private Boolean available;
+    private boolean available;
     private User owner;
 }

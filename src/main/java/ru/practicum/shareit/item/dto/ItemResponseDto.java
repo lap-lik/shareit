@@ -12,5 +12,5 @@ import ru.practicum.shareit.generic.BaseDto;
 public class ItemResponseDto extends BaseDto {
     private String name;
     private String description;
-    private Boolean available;
+    private boolean available;
 }

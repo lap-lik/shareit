@@ -75,16 +75,14 @@ public class InMemoryItemDaoImpl implements ItemDao {
     @Override
     public List<Item> findAllByOwnerId(Long ownerId) {
 
-        Set<Long> itemsIds = itemIdsByOwnerId.get(ownerId);
-
-        return itemsIds.stream().map(items::get).collect(Collectors.toList());
+        return itemIdsByOwnerId.get(ownerId).stream().map(items::get).collect(Collectors.toList());
     }
 
     @Override
     public List<Item> findAllByText(String text) {
 
         return items.values().stream()
-                .filter(item -> item.getAvailable().equals(true) &&
+                .filter(item -> item.isAvailable() &&
                         (item.getName().toLowerCase().contains(text) ||
                                 item.getDescription().toLowerCase().contains(text)))
                 .collect(Collectors.toList());
