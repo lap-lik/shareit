@@ -1,8 +1,7 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.*;
 import ru.practicum.shareit.generic.BaseEntity;
-import ru.practicum.shareit.user.model.User;
 
 @Setter
 @Getter
@@ -10,9 +9,7 @@ import ru.practicum.shareit.user.model.User;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Item extends BaseEntity {
+public class User extends BaseEntity {
     private String name;
-    private String description;
-    private Boolean available;
-    private User owner;
+    private String email;
 }
