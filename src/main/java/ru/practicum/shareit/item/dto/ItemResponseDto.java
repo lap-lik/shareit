@@ -1,8 +1,7 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.dto;
 
 import lombok.*;
-import ru.practicum.shareit.generic.BaseEntity;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.generic.BaseDto;
 
 @Setter
 @Getter
@@ -10,9 +9,8 @@ import ru.practicum.shareit.user.model.User;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Item extends BaseEntity {
+public class ItemResponseDto extends BaseDto {
     private String name;
     private String description;
     private boolean available;
-    private User owner;
 }
