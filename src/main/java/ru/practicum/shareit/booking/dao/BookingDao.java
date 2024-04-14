@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface BookingDao extends JpaRepository<Booking, Long> {
 
-    Optional<Booking> findBookingByIdAndBooker_IdOrIdAndItem_Owner_Id(Long Id, Long bookerId, Long bookingId, Long ownerId);
+    Optional<Booking> findBookingByIdAndBooker_IdOrIdAndItem_Owner_Id(Long id, Long bookerId, Long bookingId, Long ownerId);
 
     Optional<Booking> findFirstByItem_IdAndStartIsAfterAndStatusIsNotOrderByStartAsc(Long itemId, LocalDateTime now, Status status);
 

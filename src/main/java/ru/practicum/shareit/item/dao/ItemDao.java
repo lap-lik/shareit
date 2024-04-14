@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface ItemDao extends JpaRepository<Item, Long> {
 
-    boolean existsById(Long id);
+    boolean existsById(Long itemId);
 
     void deleteByOwnerId(Long ownerId);
 
