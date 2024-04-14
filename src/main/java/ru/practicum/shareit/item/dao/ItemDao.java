@@ -20,7 +20,7 @@ public interface ItemDao extends JpaRepository<Item, Long> {
 
     void deleteByOwnerId(Long ownerId);
 
-    List<Item> findAllByOwnerId(Long ownerId);
+    List<Item> findAllByOwnerIdOrderById(Long ownerId);
 
     List<Item> findAllByNameContainingIgnoreCaseAndAvailableTrueOrDescriptionContainingIgnoreCaseAndAvailableTrue(String name, String description);
 

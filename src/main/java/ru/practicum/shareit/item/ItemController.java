@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -53,7 +51,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemResponseDto> getAllItemsByOwnerId(@RequestHeader(REQUEST_HEADER_USER_ID) Long ownerId) {
+    public List<ItemWithBookingsDto> getAllItems(@RequestHeader(REQUEST_HEADER_USER_ID) Long ownerId) {
 
         log.info("START endpoint `method:GET /items` (get all items by owner id).");
 
@@ -66,5 +64,15 @@ public class ItemController {
         log.info("START endpoint `method:GET /items/search` (search items by text), text: {}.", text);
 
         return itemService.searchItemsByText(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentResponseDto addComment(@RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
+                                         @PathVariable Long itemId,
+                                         @RequestBody CommentRequestDto requestDto) {
+
+        log.info("START endpoint `method:POST /items/{itemId}/comment` (create comment to item by id), item id: {}.", itemId);
+
+        return itemService.addComment(userId, itemId, requestDto);
     }
 }

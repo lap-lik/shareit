@@ -14,9 +14,9 @@ public interface BookingDao extends JpaRepository<Booking, Long> {
 
     Optional<Booking> findBookingByIdAndBooker_IdOrIdAndItem_Owner_Id(Long Id, Long bookerId, Long Id2, Long ownerId);
 
-    Optional<Booking> findFirstByItem_IdAndStartIsAfterOrderByStartAsc(Long itemId, LocalDateTime now);
+    Optional<Booking> findFirstByItem_IdAndStartIsAfterAndStatusIsNotOrderByStartAsc(Long itemId, LocalDateTime now, Status status);
 
-    Optional<Booking> findFirstByItem_IdAndEndIsBeforeOrderByEndDesc(Long itemId, LocalDateTime now);
+    Optional<Booking> findFirstByItem_IdAndStartIsBeforeAndStatusIsNotOrderByStartDesc(Long itemId, LocalDateTime now, Status status);
 
     List<Booking> findAllByBooker_IdOrderByStartDesc(Long bookerId);
 
@@ -37,6 +37,8 @@ public interface BookingDao extends JpaRepository<Booking, Long> {
     List<Booking> findAllByItem_Owner_IdAndStartIsAfterOrderByStartDesc(Long ownerId, LocalDateTime now);
 
     List<Booking> findAllByItem_Owner_IdAndStatusOrderByStartDesc(Long ownerId, Status status);
+
+    boolean existsByItem_IdAndBooker_IdAndStatusAndEndIsBefore(Long itemId, Long bookerId, Status status, LocalDateTime now);
 
     @Modifying
     @Query(nativeQuery = true,

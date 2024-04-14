@@ -3,6 +3,8 @@ package ru.practicum.shareit.item.dto;
 import org.mapstruct.Mapper;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.List;
+
 /**
  * The ItemMapper interface represents a mapper for converting Item entities to ItemResponseDTOs and vice versa.
  */
@@ -16,4 +18,6 @@ public interface ItemWithBookingsMapper {
      * @return The corresponding requestDTO.
      */
     ItemWithBookingsDto toDto(Item entity);
+
+    List<ItemWithBookingsDto> toDtos( List<Item> entities);
 }
