@@ -102,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
 
         boolean itemCreatedByUser = itemDao.existsItemByIdAndOwner_Id(itemId, userId);
         List<CommentResponseDto> comments = commentResponseMapper.toDtos(commentDao.findAllByItem_IdOrderByCreatedDesc(itemId));
-        
+
         if (!itemCreatedByUser) {
             responseItem.setComments(comments);
             return responseItem;
