@@ -1,4 +1,4 @@
-package ru.practicum.shareit.validation;
+package ru.practicum.shareit.exception.validation;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.exception.ValidException;

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.dao;
 
-import ru.practicum.shareit.generic.GenericDao;
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.user.model.User;
 
 /**
@@ -8,9 +8,8 @@ import ru.practicum.shareit.user.model.User;
  * It extends the GenericDao interface with User as the entity type.
  * The methods provided in this interface are: getting the user ID by email.
  *
- * @see GenericDao
+ * @see JpaRepository
  */
-public interface UserDao extends GenericDao<User> {
-
-    Long findUserIdByEmail(String email);
+public interface UserDao extends JpaRepository<User, Long> {
+    boolean existsById(Long id);
 }

@@ -1,15 +1,19 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.*;
-import ru.practicum.shareit.generic.BaseDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class UserResponseDto extends BaseDto {
+@Builder(toBuilder = true)
+public class UserResponseDto {
+
+    private Long id;
+
     private String name;
+
     private String email;
 }

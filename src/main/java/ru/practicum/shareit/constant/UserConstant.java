@@ -1,6 +1,6 @@
 package ru.practicum.shareit.constant;
 
-public class UserConstant {
+public final class UserConstant {
     private UserConstant() {
     }
 

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.validation;
+package ru.practicum.shareit.exception.validation;
 /**
  * The Marker interface is a marker interface for group annotations used in the validation of incoming data.
  */

@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserResponseDto update(@PathVariable Long userId, @RequestBody UserRequestDto requestDto) {
+    public UserResponseDto updateUser(@PathVariable Long userId, @RequestBody final UserRequestDto requestDto) {
 
         log.info("START endpoint `method:PATCH /users/:userId` (update user), user id: {}.", userId);
 

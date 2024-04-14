@@ -2,17 +2,19 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dao.BookingDao;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
+import ru.practicum.shareit.booking.dto.BookingShortMapper;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.NotImplementedException;
 import ru.practicum.shareit.item.dao.ItemDao;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.item.dto.ItemRequestMapper;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemResponseMapper;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.user.dao.UserDao;
-import ru.practicum.shareit.validation.Marker;
-import ru.practicum.shareit.validation.ValidatorUtils;
+import ru.practicum.shareit.exception.validation.Marker;
+import ru.practicum.shareit.exception.validation.ValidatorUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -22,21 +24,26 @@ import java.util.Objects;
 public class ItemServiceImpl implements ItemService {
     private final ItemDao itemDao;
     private final UserDao userDao;
+    private final BookingDao bookingDao;
     private final ItemRequestMapper itemRequestMapper;
     private final ItemResponseMapper itemResponseMapper;
+    private final ItemWithBookingsMapper itemWithBookingsMapper;
+    private final BookingShortMapper bookingShortMapper;
 
     @Override
+    @Transactional
     public ItemResponseDto create(ItemRequestDto requestDto) {
+
+        ValidatorUtils.validate(requestDto, Marker.OnCreate.class);
 
         Long ownerId = requestDto.getOwnerId();
         checkExistsOwnerById(ownerId);
-
-        ValidatorUtils.validate(requestDto, Marker.OnCreate.class);
 
         return itemResponseMapper.toDto(itemDao.save(itemRequestMapper.toEntity(requestDto)));
     }
 
     @Override
+    @Transactional
     public ItemResponseDto update(Long ownerId, ItemRequestDto requestDto) {
 
         Long itemId = requestDto.getId();
@@ -68,20 +75,37 @@ public class ItemServiceImpl implements ItemService {
 
         ValidatorUtils.validate(requestDto, Marker.OnUpdate.class);
 
-        return itemResponseMapper.toDto(itemDao.update(itemRequestMapper.toEntity(requestDto)));
+        return itemResponseMapper.toDto(itemDao.save(itemRequestMapper.toEntity(requestDto)));
     }
 
     @Override
-    public ItemResponseDto getById(Long itemId) {
+    @Transactional(readOnly = true)
+    public ItemWithBookingsDto getById(Long userId, Long itemId) {
 
-        return itemResponseMapper.toDto(itemDao.findById(itemId)
+        LocalDateTime now = LocalDateTime.now();
+        ItemWithBookingsDto responseItem = itemWithBookingsMapper.toDto(itemDao.findById(itemId)
                 .orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The item with the ID - `%d` was not found.", itemId))
                         .build()));
+
+        boolean isItemExists = itemDao.existsItemByIdAndOwner_Id(itemId, userId);
+        if (!isItemExists){
+            return responseItem;
+        }
+        
+        BookingShortDto lastBooking = bookingShortMapper.toDto(
+                bookingDao.findFirstByItem_IdAndEndIsBeforeOrderByEndDesc(itemId, now).orElse(null));
+        BookingShortDto nextBooking = bookingShortMapper.toDto(
+                bookingDao.findFirstByItem_IdAndStartIsAfterOrderByStartAsc(itemId, now).orElse(null));
+        return responseItem.toBuilder()
+                .lastBooking(lastBooking)
+                .nextBooking(nextBooking)
+                .build();
     }
 
     @Override
-    public List<ItemResponseDto> getAll() {
+    @Transactional(readOnly = true)
+    public List<ItemWithBookingsDto> getAll() {
 
         throw NotImplementedException.builder()
                 .message("The method of getAllItems is not implemented.")
@@ -89,6 +113,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long itemId) {
 
         throw NotImplementedException.builder()
@@ -97,6 +122,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemResponseDto> getAllByOwnerId(Long ownerId) {
 
         checkExistsOwnerById(ownerId);
@@ -105,12 +131,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemResponseDto> searchItemsByText(String text) {
 
         if (text.isEmpty()) {
             return Collections.emptyList();
         }
-        return itemResponseMapper.toDtos(itemDao.findAllByText(text.toLowerCase()));
+        return itemResponseMapper.toDtos(itemDao
+                .findAllByNameContainingIgnoreCaseAndAvailableTrueOrDescriptionContainingIgnoreCaseAndAvailableTrue(text, text));
     }
 
     private void checkExistsOwnerById(Long ownerId) {

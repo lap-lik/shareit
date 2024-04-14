@@ -3,15 +3,17 @@ package ru.practicum.shareit.item.dto;
 import org.mapstruct.Mapper;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.List;
-
 /**
  * The ItemMapper interface represents a mapper for converting Item entities to ItemResponseDTOs and vice versa.
  */
 @Mapper(componentModel = "spring")
-public interface ItemResponseMapper {
+public interface ItemWithBookingsMapper {
 
-    ItemResponseDto toDto(Item entity);
-
-    List<ItemResponseDto> toDtos(List<Item> entity);
+    /**
+     * Converts an entity object to a DTO.
+     *
+     * @param entity The entity object to be converted.
+     * @return The corresponding requestDTO.
+     */
+    ItemWithBookingsDto toDto(Item entity);
 }

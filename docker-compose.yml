@@ -1,0 +1,12 @@
+#docker-compose up
+version: "3.9"
+services:
+  postgres:
+    container_name: shareItDB
+    image: postgres
+    environment:
+      POSTGRES_DB: "shareit"
+      POSTGRES_USER: "shareit"
+      POSTGRES_PASSWORD: "shareit"
+    ports:
+      - "5432:5432"
