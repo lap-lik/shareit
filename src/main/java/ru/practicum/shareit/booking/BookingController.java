@@ -42,7 +42,7 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getAllBookingsAtBooker(@RequestHeader(REQUEST_HEADER_USER_ID) Long bookerId,
-                                                  @RequestParam(defaultValue = "ALL") String state) {
+                                                           @RequestParam(defaultValue = "ALL") String state) {
 
         log.info("START endpoint `method:GET /bookings?state={state}` (get all bookings at booker), booker id: {}.", bookerId);
 
@@ -51,7 +51,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getAllBookingsAtOwner(@RequestHeader(REQUEST_HEADER_USER_ID) Long ownerId,
-                                                  @RequestParam(defaultValue = "ALL") String state) {
+                                                          @RequestParam(defaultValue = "ALL") String state) {
 
         log.info("START endpoint `method:GET /bookings/owner?state={state}` (get all bookings at owner), owner id: {}.", ownerId);
 

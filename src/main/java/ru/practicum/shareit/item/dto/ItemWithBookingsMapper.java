@@ -19,5 +19,5 @@ public interface ItemWithBookingsMapper {
      */
     ItemWithBookingsDto toDto(Item entity);
 
-    List<ItemWithBookingsDto> toDtos( List<Item> entities);
+    List<ItemWithBookingsDto> toDtos(List<Item> entities);
 }

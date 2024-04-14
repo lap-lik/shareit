@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * The UserService interface represents a service for managing user.
  * It extends the GenericService interface with UserDTO as the entity.
- *
  */
 public interface UserService {
 
@@ -23,7 +22,7 @@ public interface UserService {
     /**
      * Updates an entity.
      *
-     * @param ownerId         The identifier of the entity.
+     * @param ownerId    The identifier of the entity.
      * @param requestDto The requestDTO object representing the entity to be updated.
      * @return The updated entity (responseDTO).
      */

@@ -18,7 +18,6 @@ import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.dto.UserResponseMapper;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -195,7 +194,7 @@ public class ItemServiceImpl implements ItemService {
 
         return userResponseMapper.toDto(userDao.findById(userId)
                 .orElseThrow(() -> NotFoundException.builder()
-                .message(String.format("The user with the ID - `%d` was not found.", userId))
-                .build()));
+                        .message(String.format("The user with the ID - `%d` was not found.", userId))
+                        .build()));
     }
 }
