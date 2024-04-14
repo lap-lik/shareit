@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface BookingDao extends JpaRepository<Booking, Long> {
 
-    Optional<Booking> findBookingByIdAndBooker_IdOrIdAndItem_Owner_Id(Long Id, Long bookerId, Long Id2, Long ownerId);
+    Optional<Booking> findBookingByIdAndBooker_IdOrIdAndItem_Owner_Id(Long Id, Long bookerId, Long bookingId, Long ownerId);
 
     Optional<Booking> findFirstByItem_IdAndStartIsAfterAndStatusIsNotOrderByStartAsc(Long itemId, LocalDateTime now, Status status);
 
@@ -20,7 +20,7 @@ public interface BookingDao extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByBooker_IdOrderByStartDesc(Long bookerId);
 
-    List<Booking> findAllByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long bookerId, LocalDateTime now, LocalDateTime now2);
+    List<Booking> findAllByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long bookerId, LocalDateTime now, LocalDateTime timeNow);
 
     List<Booking> findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(Long bookerId, LocalDateTime now);
 
@@ -30,7 +30,7 @@ public interface BookingDao extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByItem_Owner_IdOrderByStartDesc(Long ownerId);
 
-    List<Booking> findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long ownerId, LocalDateTime now, LocalDateTime now2);
+    List<Booking> findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long ownerId, LocalDateTime now, LocalDateTime timeNow);
 
     List<Booking> findAllByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(Long ownerId, LocalDateTime now);
 
