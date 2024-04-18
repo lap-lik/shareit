@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import static ru.practicum.shareit.constant.UserConstant.EMAIL_REGEX;
+import static ru.practicum.shareit.constant.Constant.EMAIL_REGEX;
 
 @Data
 @NoArgsConstructor

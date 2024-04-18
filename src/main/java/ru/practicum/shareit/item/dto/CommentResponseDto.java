@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +21,7 @@ public class CommentResponseDto {
     private String authorName;
 
     private LocalDateTime created;
+
+    @JsonIgnore
+    private Long itemId;
 }

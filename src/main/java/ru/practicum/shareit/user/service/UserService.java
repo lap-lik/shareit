@@ -7,46 +7,45 @@ import java.util.List;
 
 /**
  * The UserService interface represents a service for managing user.
- * It extends the GenericService interface with UserDTO as the entity.
  */
 public interface UserService {
 
     /**
-     * Creates a new entity.
+     * Creates a new user based on the provided user request data.
      *
-     * @param requestDto The requestDTO object representing the entity to be created.
-     * @return The created entity (responseDTO).
+     * @param requestDto The data required to create the new user.
+     * @return The response containing the details of the created user.
      */
     UserResponseDto create(UserRequestDto requestDto);
 
     /**
-     * Updates an entity.
+     * Updates an existing user owned by the specified owner ID with the provided user request data.
      *
-     * @param ownerId    The identifier of the entity.
-     * @param requestDto The requestDTO object representing the entity to be updated.
-     * @return The updated entity (responseDTO).
+     * @param ownerId    The ID of the owner of the user to be updated.
+     * @param requestDto The data required to update the user.
+     * @return The response containing the updated user details.
      */
     UserResponseDto update(Long ownerId, UserRequestDto requestDto);
 
     /**
-     * Retrieves an entity by its identifier.
+     * Retrieves a user by ID.
      *
-     * @param itemId The identifier of the entity.
-     * @return The entity (responseDTO) with the specified identifier, or null if not found.
+     * @param userId The ID of the user to retrieve.
+     * @return The user details.
      */
-    UserResponseDto getById(Long itemId);
+    UserResponseDto getById(Long userId);
 
     /**
-     * Retrieves a list of all entities.
+     * Retrieves all users.
      *
-     * @return A list containing all entities.
+     * @return A list of all users.
      */
     List<UserResponseDto> getAll();
 
     /**
-     * Deletes an entity by its identifier.
+     * Deletes a user by ID.
      *
-     * @param itemId The identifier of the entity to be deleted.
+     * @param userId The ID of the user to delete.
      */
-    void deleteById(Long itemId);
+    void deleteById(Long userId);
 }

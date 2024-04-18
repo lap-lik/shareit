@@ -6,24 +6,24 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 /**
- * The UserMapper interface represents a mapper for converting User entities to UserResponseDTOs and vice versa.
+ * The UserResponseMapper interface is used to map between User entities and UserResponseDto objects.
  */
 @Mapper(componentModel = "spring")
 public interface UserResponseMapper {
 
     /**
-     * Converts an entity object to a DTO.
+     * Maps the fields from a User entity to a UserResponseDto object.
      *
-     * @param entity The entity object to be converted.
-     * @return The corresponding requestDTO.
+     * @param entity The User entity to be mapped.
+     * @return The mapped UserResponseDto object.
      */
     UserResponseDto toDto(User entity);
 
     /**
-     * Converts a list of entities to a list of DTOs.
+     * Maps a list of User entities to a list of UserResponseDto objects.
      *
-     * @param entities The list of entities to be converted.
-     * @return The corresponding list of requestDTOs.
+     * @param entities The list of User entities to be mapped.
+     * @return The list of mapped UserResponseDto objects.
      */
     List<UserResponseDto> toDtos(List<User> entities);
 }

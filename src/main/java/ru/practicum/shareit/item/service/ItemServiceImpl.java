@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dao.BookingDao;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.dto.BookingResponseMapper;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.dto.BookingShortMapper;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -18,9 +20,7 @@ import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.dto.UserResponseMapper;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.model.Status.APPROVED;
@@ -37,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemResponseMapper itemResponseMapper;
     private final ItemWithBookingsMapper itemWithBookingsMapper;
     private final BookingShortMapper bookingShortMapper;
+    private final BookingResponseMapper bookingResponseMapper;
     private final CommentRequestMapper commentRequestMapper;
     private final CommentResponseMapper commentResponseMapper;
     private final UserResponseMapper userResponseMapper;
@@ -58,18 +59,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemResponseDto update(Long ownerId, ItemRequestDto requestDto) {
 
         Long itemId = requestDto.getId();
-        ItemRequestDto itemFromDB = itemRequestMapper.toDto(itemDao.findById(itemId)
-                .orElseThrow(() -> NotFoundException.builder()
-                        .message(String.format("The item with the ID - `%d` was not found.", itemId))
-                        .build()));
-
-        if (!Objects.equals(ownerId, itemFromDB.getOwnerId())) {
-            throw NotFoundException.builder()
-                    .message(String.format("The item with the ID - `%d` was created by another user.", itemId))
-                    .build();
-        }
-
-        requestDto.setOwnerId(ownerId);
+        ItemRequestDto itemFromDB = getItemRequestDto(ownerId, itemId);
         String itemName = requestDto.getName();
         String itemDescription = requestDto.getDescription();
         Boolean itemAvailable = requestDto.getAvailable();
@@ -83,6 +73,7 @@ public class ItemServiceImpl implements ItemService {
         if (Objects.isNull(itemAvailable)) {
             requestDto.setAvailable(itemFromDB.getAvailable());
         }
+        requestDto.setOwnerId(ownerId);
 
         ValidatorUtils.validate(requestDto, Marker.OnUpdate.class);
 
@@ -91,56 +82,47 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public ItemWithBookingsDto getById(Long userId, Long itemId) {
+    public ItemWithBookingsAndCommentsDto getById(Long userId, Long itemId) {
 
         LocalDateTime now = LocalDateTime.now();
-        ItemWithBookingsDto responseItem = itemWithBookingsMapper.toDto(itemDao.findById(itemId)
+        ItemWithBookingsAndCommentsDto responseItem = itemWithBookingsMapper.toDto(itemDao.findById(itemId)
                 .orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The item with the ID - `%d` was not found.", itemId))
                         .build()));
 
         boolean itemCreatedByUser = itemDao.existsItemByIdAndOwner_Id(itemId, userId);
         List<CommentResponseDto> comments = commentResponseMapper.toDtos(commentDao.findAllByItem_IdOrderByCreatedDesc(itemId));
-
         if (!itemCreatedByUser) {
             responseItem.setComments(comments);
             return responseItem;
         }
 
+        List<BookingResponseDto> bookings = bookingResponseMapper.toDtos(bookingDao.findAllByItem_IdAndStatusIsNot(itemId, REJECTED));
 
-        BookingShortDto lastBooking = bookingShortMapper.toDto(
-                bookingDao.findFirstByItem_IdAndStartIsBeforeAndStatusIsNotOrderByStartDesc(itemId, now, REJECTED).orElse(null));
-        BookingShortDto nextBooking = bookingShortMapper.toDto(
-                bookingDao.findFirstByItem_IdAndStartIsAfterAndStatusIsNotOrderByStartAsc(itemId, now, REJECTED).orElse(null));
-
-        return responseItem.toBuilder()
-                .lastBooking(lastBooking)
-                .nextBooking(nextBooking)
-                .comments(comments)
-                .build();
+        return getItemWithBookingsAndCommentsDto(responseItem, comments, bookings, now);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemWithBookingsDto> getAllByOwnerId(Long ownerId) {
+    public List<ItemWithBookingsAndCommentsDto> getAllByOwnerId(Long ownerId) {
 
         LocalDateTime now = LocalDateTime.now();
-        List<ItemWithBookingsDto> responseDto = itemWithBookingsMapper.toDtos(itemDao.findAllByOwnerIdOrderById(ownerId));
+        List<ItemWithBookingsAndCommentsDto> responseItems = itemWithBookingsMapper.toDtos(itemDao.findAllByOwnerIdOrderById(ownerId));
+        List<Long> itemsIds = responseItems.stream()
+                .map(ItemWithBookingsAndCommentsDto::getId)
+                .collect(Collectors.toList());
 
-        return responseDto.stream().map(itemDto -> {
+        Map<Long, List<BookingResponseDto>> bookings = bookingDao.findAllByItem_IdInAndStatusIsNot(itemsIds, REJECTED).stream()
+                .map(bookingResponseMapper::toDto)
+                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+
+        Map<Long, List<CommentResponseDto>> comments = commentDao.findAllByItem_IdInOrderByCreatedDesc(itemsIds).stream()
+                .map(commentResponseMapper::toDto)
+                .collect(Collectors.groupingBy(CommentResponseDto::getItemId));
+
+        return responseItems.stream().map(itemDto -> {
             Long itemId = itemDto.getId();
-            List<CommentResponseDto> comments = commentResponseMapper.toDtos(commentDao.findAllByItem_IdOrderByCreatedDesc(itemId));
-
-            BookingShortDto lastBooking = bookingShortMapper.toDto(
-                    bookingDao.findFirstByItem_IdAndStartIsBeforeAndStatusIsNotOrderByStartDesc(itemId, now, REJECTED).orElse(null));
-            BookingShortDto nextBooking = bookingShortMapper.toDto(
-                    bookingDao.findFirstByItem_IdAndStartIsAfterAndStatusIsNotOrderByStartAsc(itemId, now, REJECTED).orElse(null));
-
-            return itemDto.toBuilder()
-                    .lastBooking(lastBooking)
-                    .nextBooking(nextBooking)
-                    .comments(comments)
-                    .build();
+            return getItemWithBookingsAndCommentsDto(itemDto, comments.get(itemId), bookings.get(itemId), now);
         }).collect(Collectors.toList());
     }
 
@@ -151,14 +133,17 @@ public class ItemServiceImpl implements ItemService {
         if (text.isEmpty()) {
             return Collections.emptyList();
         }
+
         return itemResponseMapper.toDtos(itemDao
                 .findAllByNameContainingIgnoreCaseAndAvailableTrueOrDescriptionContainingIgnoreCaseAndAvailableTrue(text, text));
     }
 
     @Override
     public CommentResponseDto addComment(Long userId, Long itemId, CommentRequestDto requestDto) {
+
         LocalDateTime now = LocalDateTime.now();
         UserResponseDto userResponseDto = checkExistsUserById(userId);
+
         checkExistsItemById(itemId);
 
         boolean booking = bookingDao.existsByItem_IdAndBooker_IdAndStatusAndEndIsBefore(itemId, userId, APPROVED, now);
@@ -177,6 +162,52 @@ public class ItemServiceImpl implements ItemService {
         responseDto.setAuthorName(userResponseDto.getName());
 
         return responseDto;
+    }
+
+    private ItemRequestDto getItemRequestDto(Long ownerId, Long itemId) {
+
+        ItemRequestDto itemFromDB = itemRequestMapper.toDto(itemDao.findById(itemId)
+                .orElseThrow(() -> NotFoundException.builder()
+                        .message(String.format("The item with the ID - `%d` was not found.", itemId))
+                        .build()));
+
+        if (!Objects.equals(ownerId, itemFromDB.getOwnerId())) {
+            throw NotFoundException.builder()
+                    .message(String.format("The item with the ID - `%d` was created by another user.", itemId))
+                    .build();
+        }
+
+        return itemFromDB;
+    }
+
+    private ItemWithBookingsAndCommentsDto getItemWithBookingsAndCommentsDto(ItemWithBookingsAndCommentsDto item,
+                                                                             List<CommentResponseDto> comments,
+                                                                             List<BookingResponseDto> bookings,
+                                                                             LocalDateTime now) {
+
+        if (Objects.isNull(bookings)) {
+            return item.toBuilder()
+                    .lastBooking(null)
+                    .nextBooking(null)
+                    .comments(comments)
+                    .build();
+        }
+
+        BookingShortDto lastBooking = bookingShortMapper.responseDtoToShortDto(bookings.stream()
+                .filter(booking -> booking.getStart().isBefore(now))
+                .max(Comparator.comparing(BookingResponseDto::getStart))
+                .orElse(null));
+
+        BookingShortDto nextBooking = bookingShortMapper.responseDtoToShortDto(bookings.stream()
+                .filter(booking -> booking.getStart().isAfter(now))
+                .min(Comparator.comparing(BookingResponseDto::getStart))
+                .orElse(null));
+
+        return item.toBuilder()
+                .lastBooking(lastBooking)
+                .nextBooking(nextBooking)
+                .comments(comments)
+                .build();
     }
 
     private void checkExistsItemById(Long itemId) {

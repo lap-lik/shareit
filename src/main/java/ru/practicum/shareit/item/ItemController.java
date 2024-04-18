@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
 
-import static ru.practicum.shareit.constant.UserConstant.REQUEST_HEADER_USER_ID;
+import static ru.practicum.shareit.constant.Constant.REQUEST_HEADER_USER_ID;
 
 
 @Slf4j
@@ -42,8 +42,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemWithBookingsDto getItemById(@RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
-                                           @PathVariable final Long itemId) {
+    public ItemWithBookingsAndCommentsDto getItemById(@RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
+                                                      @PathVariable final Long itemId) {
 
         log.info("START endpoint `method:GET /items/{itemId}` (get item by id), item id: {}.", itemId);
 
@@ -51,7 +51,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemWithBookingsDto> getAllItems(@RequestHeader(REQUEST_HEADER_USER_ID) Long ownerId) {
+    public List<ItemWithBookingsAndCommentsDto> getAllItems(@RequestHeader(REQUEST_HEADER_USER_ID) Long ownerId) {
 
         log.info("START endpoint `method:GET /items` (get all items by owner id).");
 

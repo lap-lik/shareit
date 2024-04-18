@@ -42,8 +42,8 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDto create(BookingRequestDto requestDto) {
 
-        UserResponseDto booker = findUserById(requestDto.getBookerId());
-        ItemResponseDto item = findItemById(requestDto.getItemId());
+        UserResponseDto booker = validateUserById(requestDto.getBookerId());
+        ItemResponseDto item = validateItemById(requestDto.getItemId());
         Long bookerId = booker.getId();
         Long itemId = item.getId();
 
@@ -117,8 +117,8 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponseDto> getAllBookingsAtBooker(Long bookerId, String queryState) {
 
         LocalDateTime now = LocalDateTime.now();
-        State state = checkState(queryState);
-        findUserById(bookerId);
+        State state = validateState(queryState);
+        validateUserById(bookerId);
 
         switch (state) {
             case ALL:
@@ -151,8 +151,8 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponseDto> getAllBookingsAtOwner(Long ownerId, String queryState) {
 
         LocalDateTime now = LocalDateTime.now();
-        State state = checkState(queryState);
-        findUserById(ownerId);
+        State state = validateState(queryState);
+        validateUserById(ownerId);
 
         switch (state) {
             case ALL:
@@ -180,7 +180,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private State checkState(String queryState) {
+    private State validateState(String queryState) {
 
         try {
             return State.valueOf(queryState);
@@ -208,7 +208,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private UserResponseDto findUserById(Long userId) {
+    private UserResponseDto validateUserById(Long userId) {
 
         return userResponseMapper.toDto(userDao.findById(userId)
                 .orElseThrow(() -> NotFoundException.builder()
@@ -216,7 +216,7 @@ public class BookingServiceImpl implements BookingService {
                         .build()));
     }
 
-    private ItemResponseDto findItemById(Long itemId) {
+    private ItemResponseDto validateItemById(Long itemId) {
 
         ItemResponseDto item = itemResponseMapper.toDto(itemDao.findById(itemId)
                 .orElseThrow(() -> NotFoundException.builder()

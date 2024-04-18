@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ItemWithBookingsDto {
+public class ItemWithBookingsAndCommentsDto {
 
     private Long id;
 

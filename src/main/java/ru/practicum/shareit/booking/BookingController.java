@@ -10,7 +10,7 @@ import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
 
-import static ru.practicum.shareit.constant.UserConstant.REQUEST_HEADER_USER_ID;
+import static ru.practicum.shareit.constant.Constant.REQUEST_HEADER_USER_ID;
 
 
 @Slf4j
@@ -67,5 +67,4 @@ public class BookingController {
 
         return bookingService.approvedBooking(userId, bookingId, approved);
     }
-
 }

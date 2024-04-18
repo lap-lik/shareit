@@ -6,18 +6,25 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.List;
 
 /**
- * The ItemMapper interface represents a mapper for converting Item entities to ItemResponseDTOs and vice versa.
+ * The ItemWithBookingsMapper interface is used to map between Item entities
+ * and ItemWithBookingsAndCommentsDto objects.
  */
 @Mapper(componentModel = "spring")
 public interface ItemWithBookingsMapper {
 
     /**
-     * Converts an entity object to a DTO.
+     * Maps the fields from an Item entity to an ItemWithBookingsAndCommentsDto object.
      *
-     * @param entity The entity object to be converted.
-     * @return The corresponding requestDTO.
+     * @param entity The Item entity to be mapped.
+     * @return The mapped ItemWithBookingsAndCommentsDto object.
      */
-    ItemWithBookingsDto toDto(Item entity);
+    ItemWithBookingsAndCommentsDto toDto(Item entity);
 
-    List<ItemWithBookingsDto> toDtos(List<Item> entities);
+    /**
+     * Maps a list of Item entities to a list of ItemWithBookingsAndCommentsDto objects.
+     *
+     * @param entities The list of Item entities to be mapped.
+     * @return The list of mapped ItemWithBookingsAndCommentsDto objects.
+     */
+    List<ItemWithBookingsAndCommentsDto> toDtos(List<Item> entities);
 }

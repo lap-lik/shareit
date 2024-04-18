@@ -4,24 +4,24 @@ import org.mapstruct.Mapper;
 import ru.practicum.shareit.user.model.User;
 
 /**
- * The UserMapper interface represents a mapper for converting User entities to UserRequestDTOs and vice versa.
+ * The UserRequestMapper interface is used to map between UserRequestDto objects and User entities.
  */
 @Mapper(componentModel = "spring")
 public interface UserRequestMapper {
 
     /**
-     * Converts a DTO object to an entity.
+     * Maps the fields from a UserRequestDto object to a User entity.
      *
-     * @param requestDto The DTO object to be converted.
-     * @return The corresponding entity.
+     * @param requestDto The UserRequestDto object to be mapped.
+     * @return The mapped User entity.
      */
     User toEntity(UserRequestDto requestDto);
 
     /**
-     * Converts an entity object to a DTO.
+     * Maps the fields from a User entity to a UserRequestDto object.
      *
-     * @param entity The entity object to be converted.
-     * @return The corresponding requestDTO.
+     * @param entity The User entity to be mapped.
+     * @return The mapped UserRequestDto object.
      */
     UserRequestDto toDto(User entity);
 }
