@@ -143,8 +143,8 @@ public class ItemServiceImpl implements ItemService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        boolean isBookingConfirmed  = bookingDao.existsByItem_IdAndBooker_IdAndStatusAndEndIsBefore(itemId, userId, APPROVED, now);
-        if (!isBookingConfirmed ) {
+        boolean isBookingConfirmed = bookingDao.existsByItem_IdAndBooker_IdAndStatusAndEndIsBefore(itemId, userId, APPROVED, now);
+        if (!isBookingConfirmed) {
             throw ValidException.builder()
                     .message(String.format("The user with with the ID - `%d` did not rent item with the ID - `%d`.", userId, itemId))
                     .build();
