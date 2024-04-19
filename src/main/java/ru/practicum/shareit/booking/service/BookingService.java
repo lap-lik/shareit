@@ -35,7 +35,7 @@ public interface BookingService {
      * @param approved  A boolean flag indicating approval status.
      * @return The BookingResponseDto object representing the updated booking.
      */
-    BookingResponseDto approvedBooking(Long userId, Long bookingId, boolean approved);
+    BookingResponseDto approveBooking(Long userId, Long bookingId, boolean approved);
 
     /**
      * Retrieves all bookings associated with a booker user based on the booker's ID and state.

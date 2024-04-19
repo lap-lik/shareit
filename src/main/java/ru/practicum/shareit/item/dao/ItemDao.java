@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -38,14 +39,16 @@ public interface ItemDao extends JpaRepository<Item, Long> {
 
     /**
      * Find all items whose name contains the specified string (case-insensitive) and are available,
-     * <p>
      * or whose description contains the specified string (case-insensitive) and are available.
      *
-     * @param name        The string to search in the item name.
-     * @param description The string to search in the item description.
-     * @return A list of items that meet the search criteria and are available.
+     * @param text The text to search for in the name or description of the items.
+     * @return A list of items whose name or description contains the specified text.
      */
-    List<Item> findAllByNameContainingIgnoreCaseAndAvailableTrueOrDescriptionContainingIgnoreCaseAndAvailableTrue(String name, String description);
+    @Query(nativeQuery = true,
+            value = "SELECT * FROM items " +
+                    "WHERE (name ILIKE CONCAT('%', :text, '%') AND available = TRUE) " +
+                    "OR (description ILIKE CONCAT('%', :text, '%') AND available = TRUE);")
+    List<Item> findAllByNameOrDescriptionContains(String text);
 
     /**
      * Check if an item exists by its ID and owner ID.

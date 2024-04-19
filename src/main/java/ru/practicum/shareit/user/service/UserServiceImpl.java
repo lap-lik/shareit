@@ -80,8 +80,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteById(Long userId) {
 
-        boolean isUserExists = userDao.existsById(userId);
-        if (!isUserExists) {
+        if (!userDao.existsById(userId)) {
             throw NotFoundException.builder()
                     .message(String.format("The user with the ID - `%d` was not found.", userId))
                     .build();

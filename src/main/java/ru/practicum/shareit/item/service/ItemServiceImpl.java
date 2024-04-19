@@ -84,20 +84,19 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public ItemWithBookingsAndCommentsDto getById(Long userId, Long itemId) {
 
-        LocalDateTime now = LocalDateTime.now();
         ItemWithBookingsAndCommentsDto responseItem = itemWithBookingsMapper.toDto(itemDao.findById(itemId)
                 .orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The item with the ID - `%d` was not found.", itemId))
                         .build()));
 
-        boolean itemCreatedByUser = itemDao.existsItemByIdAndOwner_Id(itemId, userId);
         List<CommentResponseDto> comments = commentResponseMapper.toDtos(commentDao.findAllByItem_IdOrderByCreatedDesc(itemId));
-        if (!itemCreatedByUser) {
+        if (!itemDao.existsItemByIdAndOwner_Id(itemId, userId)) {
             responseItem.setComments(comments);
             return responseItem;
         }
 
         List<BookingResponseDto> bookings = bookingResponseMapper.toDtos(bookingDao.findAllByItem_IdAndStatusIsNot(itemId, REJECTED));
+        LocalDateTime now = LocalDateTime.now();
 
         return getItemWithBookingsAndCommentsDto(responseItem, comments, bookings, now);
     }
@@ -106,19 +105,17 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public List<ItemWithBookingsAndCommentsDto> getAllByOwnerId(Long ownerId) {
 
-        LocalDateTime now = LocalDateTime.now();
         List<ItemWithBookingsAndCommentsDto> responseItems = itemWithBookingsMapper.toDtos(itemDao.findAllByOwnerIdOrderById(ownerId));
         List<Long> itemsIds = responseItems.stream()
                 .map(ItemWithBookingsAndCommentsDto::getId)
                 .collect(Collectors.toList());
-
         Map<Long, List<BookingResponseDto>> bookings = bookingDao.findAllByItem_IdInAndStatusIsNot(itemsIds, REJECTED).stream()
                 .map(bookingResponseMapper::toDto)
                 .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
-
         Map<Long, List<CommentResponseDto>> comments = commentDao.findAllByItem_IdInOrderByCreatedDesc(itemsIds).stream()
                 .map(commentResponseMapper::toDto)
                 .collect(Collectors.groupingBy(CommentResponseDto::getItemId));
+        LocalDateTime now = LocalDateTime.now();
 
         return responseItems.stream().map(itemDto -> {
             Long itemId = itemDto.getId();
@@ -135,19 +132,19 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return itemResponseMapper.toDtos(itemDao
-                .findAllByNameContainingIgnoreCaseAndAvailableTrueOrDescriptionContainingIgnoreCaseAndAvailableTrue(text, text));
+                .findAllByNameOrDescriptionContains(text));
     }
 
     @Override
     public CommentResponseDto addComment(Long userId, Long itemId, CommentRequestDto requestDto) {
 
-        LocalDateTime now = LocalDateTime.now();
         UserResponseDto userResponseDto = checkExistsUserById(userId);
-
         checkExistsItemById(itemId);
 
-        boolean booking = bookingDao.existsByItem_IdAndBooker_IdAndStatusAndEndIsBefore(itemId, userId, APPROVED, now);
-        if (!booking) {
+        LocalDateTime now = LocalDateTime.now();
+
+        boolean isBookingConfirmed  = bookingDao.existsByItem_IdAndBooker_IdAndStatusAndEndIsBefore(itemId, userId, APPROVED, now);
+        if (!isBookingConfirmed ) {
             throw ValidException.builder()
                     .message(String.format("The user with with the ID - `%d` did not rent item with the ID - `%d`.", userId, itemId))
                     .build();
@@ -212,8 +209,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void checkExistsItemById(Long itemId) {
 
-        boolean isItemExists = itemDao.existsById(itemId);
-        if (!isItemExists) {
+        if (!itemDao.existsById(itemId)) {
             throw NotFoundException.builder()
                     .message(String.format("The item with the ID - `%d` was not found.", itemId))
                     .build();

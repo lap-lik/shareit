@@ -47,9 +47,7 @@ public class BookingServiceImpl implements BookingService {
         Long bookerId = booker.getId();
         Long itemId = item.getId();
 
-        boolean isItemExists = itemDao.existsItemByIdAndOwner_Id(itemId, bookerId);
-
-        if (isItemExists) {
+        if (itemDao.existsItemByIdAndOwner_Id(itemId, bookerId)) {
             throw NotFoundException.builder()
                     .message(String.format("The user with an ID - `%d` is creating item with an ID - `%d` and cannot booking it.", itemId, bookerId))
                     .build();
@@ -79,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponseDto approvedBooking(Long ownerId, Long bookingId, boolean approved) {
+    public BookingResponseDto approveBooking(Long ownerId, Long bookingId, boolean approved) {
 
         BookingResponseDto responseDto = bookingResponseMapper.toDto(
                 bookingDao.findById(bookingId).orElseThrow(() -> NotFoundException.builder()
@@ -93,9 +91,7 @@ public class BookingServiceImpl implements BookingService {
                     .build();
         }
 
-        boolean isItemExists = itemDao.existsItemByIdAndOwner_Id(itemId, ownerId);
-
-        if (!isItemExists) {
+        if (!itemDao.existsItemByIdAndOwner_Id(itemId, ownerId)) {
             throw NotFoundException.builder()
                     .message(String.format("The item with the ID - `%d` does not belong to the user with the ID - `%d`.", itemId, ownerId))
                     .build();
@@ -116,9 +112,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public List<BookingResponseDto> getAllBookingsAtBooker(Long bookerId, String queryState) {
 
-        LocalDateTime now = LocalDateTime.now();
         State state = validateState(queryState);
         validateUserById(bookerId);
+        LocalDateTime now = LocalDateTime.now();
 
         switch (state) {
             case ALL:
@@ -150,9 +146,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public List<BookingResponseDto> getAllBookingsAtOwner(Long ownerId, String queryState) {
 
-        LocalDateTime now = LocalDateTime.now();
         State state = validateState(queryState);
         validateUserById(ownerId);
+        LocalDateTime now = LocalDateTime.now();
 
         switch (state) {
             case ALL:

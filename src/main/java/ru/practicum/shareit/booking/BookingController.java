@@ -65,6 +65,6 @@ public class BookingController {
 
         log.info("START endpoint `method:PATCH /bookings/{bookingId}` (approved booking), booking id: {}.", bookingId);
 
-        return bookingService.approvedBooking(userId, bookingId, approved);
+        return bookingService.approveBooking(userId, bookingId, approved);
     }
 }
