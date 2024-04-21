@@ -1,4 +1,4 @@
-package ru.practicum.shareit.response;
+package ru.practicum.shareit.exception.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,5 +8,6 @@ import lombok.ToString;
 @ToString
 @Builder
 public class ErrorResponse {
+    private String error;
     private String message;
 }
