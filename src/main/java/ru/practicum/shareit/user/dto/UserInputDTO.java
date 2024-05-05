@@ -29,6 +29,4 @@ public class UserRequestDto {
     @NotBlank(message = "The email must not be empty.")
     @Email(regexp = EMAIL_REGEX, message = "The email is incorrect.")
     private String email;
-
-
 }

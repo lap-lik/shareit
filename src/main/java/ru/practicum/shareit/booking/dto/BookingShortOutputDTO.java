@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class BookingShortDto {
+public class BookingShortOutDTO {
 
     private Long id;
 
