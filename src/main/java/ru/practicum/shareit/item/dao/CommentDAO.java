@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @see JpaRepository
  */
-public interface CommentDao extends JpaRepository<Comment, Long> {
+public interface CommentDAO extends JpaRepository<Comment, Long> {
 
     /**
      * Retrieves a list of comments for a specific item ID, ordered by created date in descending order.

@@ -1,17 +1,18 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "items")
 @Getter
-@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Table(name = "items")
+@Builder(toBuilder = true)
 public class Item {
 
     @Id
@@ -31,4 +32,9 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_id")
+    private ItemRequest request;
 }

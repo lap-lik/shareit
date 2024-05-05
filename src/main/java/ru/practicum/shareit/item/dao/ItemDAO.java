@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @see JpaRepository
  */
-public interface ItemDao extends JpaRepository<Item, Long> {
+public interface ItemDAO extends JpaRepository<Item, Long> {
 
     /**
      * Check if an item exists by its ID.
@@ -35,7 +35,13 @@ public interface ItemDao extends JpaRepository<Item, Long> {
      * @param ownerId The ID of the owner.
      * @return A list of items owned by the specified owner, ordered by ID.
      */
-    List<Item> findAllByOwnerIdOrderById(Long ownerId);
+    @Query(nativeQuery = true,
+            value = "SELECT * FROM items AS i " +
+                    "LEFT JOIN users u on u.id = i.owner_id " +
+                    "LEFT JOIN requests r on r.id = i.request_id " +
+                    "WHERE i.owner_id = :ownerId " +
+                    "ORDER BY i.id OFFSET :from LIMIT :size")
+    List<Item> findAllByOwnerIdOrderById(Long ownerId, Integer from, Integer size);
 
     /**
      * Find all items whose name contains the specified string (case-insensitive) and are available,
@@ -45,10 +51,27 @@ public interface ItemDao extends JpaRepository<Item, Long> {
      * @return A list of items whose name or description contains the specified text.
      */
     @Query(nativeQuery = true,
-            value = "SELECT * FROM items " +
+            value = "SELECT * FROM items AS i " +
                     "WHERE (name ILIKE CONCAT('%', :text, '%') AND available = TRUE) " +
-                    "OR (description ILIKE CONCAT('%', :text, '%') AND available = TRUE);")
-    List<Item> findAllByNameOrDescriptionContains(String text);
+                    "OR (description ILIKE CONCAT('%', :text, '%') AND available = TRUE)" +
+                    "ORDER BY i.id OFFSET :from LIMIT :size")
+    List<Item> findAllByNameOrDescriptionContains(String text, Integer from, Integer size);
+
+    /**
+     * Find all items associated with a specific request ID.
+     *
+     * @param requestId The ID of the request for which items need to be retrieved.
+     * @return A list of items associated with the specified request ID.
+     */
+    List<Item> findAllByRequest_Id(Long requestId);
+
+    /**
+     * Retrieves a list of items based on a provided list of item IDs.
+     *
+     * @param requestIds A list of request IDs for which items need to be retrieved.
+     * @return A list of items corresponding to the provided list of item IDs.
+     */
+    List<Item> findAllByRequest_IdIn(List<Long> requestIds);
 
     /**
      * Check if an item exists by its ID and owner ID.

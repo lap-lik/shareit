@@ -1,15 +1,16 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ItemResponseDto {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ItemShortOutputDTO {
 
     private Long id;
 
@@ -18,4 +19,6 @@ public class ItemResponseDto {
     private String description;
 
     private boolean available;
+
+    private Long requestId;
 }

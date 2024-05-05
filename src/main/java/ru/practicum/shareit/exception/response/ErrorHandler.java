@@ -1,6 +1,7 @@
 package ru.practicum.shareit.exception.response;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -9,14 +10,17 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.ItemController;
+import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.user.UserController;
+import ru.practicum.shareit.user.dao.UserDAO;
 
 import javax.validation.ConstraintViolationException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {ItemController.class, UserController.class, BookingController.class})
+@RestControllerAdvice(assignableTypes = {ItemController.class, UserController.class,
+        BookingController.class, ItemRequestController.class, UserDAO.class})
 public class ErrorHandler extends ResponseEntityExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -31,23 +35,11 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .build();
     }
 
-    @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler(EmailConflictException.class)
-    public ErrorResponse onEmailConflictException(final EmailConflictException exception) {
-
-        log.warn("Exception: {}, Conflict request: \n- {}", exception.getClass().getName(), exception.getMessage());
-
-        return ErrorResponse.builder()
-                .error(exception.getClass().getName())
-                .message(exception.getMessage())
-                .build();
-    }
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({ValidException.class, ConstraintViolationException.class})
     public ErrorResponse onValidateErrorException(final RuntimeException exception) {
 
-        log.warn("Exception: {}, Validation error(s): \n{}", exception.getClass().getName(),
+        log.warn("Exception1: {}, Validation error(s): \n{}", exception.getClass().getName(),
                 getExceptionMessage(exception));
 
         return ErrorResponse.builder()
@@ -72,7 +64,19 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ErrorResponse onNotFoundException(final NotFoundException exception) {
 
-        log.warn("Exception: {}, Not found: \n{}", exception.getClass().getName(),
+        log.warn("Exception: {}, Not found: \n{}", exception.getClass().getName(), getExceptionMessage(exception));
+
+        return ErrorResponse.builder()
+                .error(exception.getClass().getName())
+                .message(exception.getMessage())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ErrorResponse onDataIntegrityViolationException(final DataIntegrityViolationException exception) {
+
+        log.warn("DataIntegrityViolationException: {}, message(s): \n{}", exception.getClass().getName(),
                 getExceptionMessage(exception));
 
         return ErrorResponse.builder()
@@ -85,7 +89,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({NotImplementedException.class, Exception.class})
     public ErrorResponse onThrowableException(final Exception exception) {
 
-        log.error("Exception: {}", exception.toString());
+        log.error("Exception: {}, message(s): \n{}", exception.getClass().getName(), getExceptionMessage(exception));
 
         return ErrorResponse.builder()
                 .error(exception.getClass().getName())

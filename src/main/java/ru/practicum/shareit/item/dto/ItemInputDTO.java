@@ -1,34 +1,33 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 import ru.practicum.shareit.exception.validation.Marker;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ItemRequestDto {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ItemInputDTO {
 
-    @Null(groups = Marker.OnCreate.class)
-    @NotNull(groups = Marker.OnUpdate.class, message = "The ID must not be null.")
     private Long id;
 
-    @NotBlank(message = "The name must not be empty.")
+    @NotBlank(message = "The name must not be empty.", groups = Marker.OnCreate.class)
     private String name;
 
-    @NotBlank(message = "The description must not be empty.")
+    @NotBlank(message = "The description must not be empty.", groups = Marker.OnCreate.class)
     private String description;
 
-    @NotNull(message = "The available must not be null.")
+    @NotNull(message = "The available must not be null.", groups = Marker.OnCreate.class)
     private Boolean available;
 
-    @NotNull(message = "The ownerId must not be null.")
     private Long ownerId;
+
+    private Long requestId;
 }

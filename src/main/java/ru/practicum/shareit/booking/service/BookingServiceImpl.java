@@ -3,23 +3,20 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dao.BookingDao;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingRequestMapper;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.dto.BookingResponseMapper;
+import ru.practicum.shareit.booking.dao.BookingDAO;
+import ru.practicum.shareit.booking.dto.BookingInputDTO;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.BookingOutputDTO;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnsupportedException;
 import ru.practicum.shareit.exception.ValidException;
-import ru.practicum.shareit.exception.validation.Marker;
-import ru.practicum.shareit.exception.validation.ValidatorUtils;
-import ru.practicum.shareit.item.dao.ItemDao;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemResponseMapper;
-import ru.practicum.shareit.user.dao.UserDao;
-import ru.practicum.shareit.user.dto.UserResponseDto;
-import ru.practicum.shareit.user.dto.UserResponseMapper;
+import ru.practicum.shareit.item.dao.ItemDAO;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemShortOutputDTO;
+import ru.practicum.shareit.user.dao.UserDAO;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.dto.UserOutputDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,47 +26,45 @@ import static ru.practicum.shareit.booking.model.Status.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
-    private final BookingDao bookingDao;
-    private final UserDao userDao;
-    private final ItemDao itemDao;
-    private final BookingRequestMapper bookingRequestMapper;
-    private final BookingResponseMapper bookingResponseMapper;
-    private final ItemResponseMapper itemResponseMapper;
-    private final UserResponseMapper userResponseMapper;
+    private final BookingDAO bookingDAO;
+    private final UserDAO userDAO;
+    private final ItemDAO itemDAO;
+    private final BookingMapper bookingMapper;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
-    public BookingResponseDto create(BookingRequestDto requestDto) {
+    public BookingOutputDTO create(BookingInputDTO inputDTO) {
 
-        UserResponseDto booker = validateUserById(requestDto.getBookerId());
-        ItemResponseDto item = validateItemById(requestDto.getItemId());
+        UserOutputDTO booker = validateUserById(inputDTO.getBookerId());
+        ItemShortOutputDTO item = validateItemById(inputDTO.getItemId());
         Long bookerId = booker.getId();
         Long itemId = item.getId();
 
-        if (itemDao.existsItemByIdAndOwner_Id(itemId, bookerId)) {
+        if (itemDAO.existsItemByIdAndOwner_Id(itemId, bookerId)) {
             throw NotFoundException.builder()
                     .message(String.format("The user with an ID - `%d` is creating item with an ID - `%d` and cannot booking it.", itemId, bookerId))
                     .build();
         }
 
-        requestDto.setStatus(WAITING);
-        ValidatorUtils.validate(requestDto, Marker.OnCreate.class);
-        validateDateTime(requestDto);
+        inputDTO.setStatus(WAITING);
+        validateDateTime(inputDTO);
 
-        BookingResponseDto responseDto = bookingResponseMapper.toDto(bookingDao.save(bookingRequestMapper.toEntity(requestDto)));
-        responseDto.setBooker(booker);
-        responseDto.setItem(item);
+        BookingOutputDTO outputDto = bookingMapper.toOutputDTO(bookingDAO.save(bookingMapper.inputDTOToEntity(inputDTO)));
+        outputDto.setBooker(booker);
+        outputDto.setItem(item);
 
-        return responseDto;
+        return outputDto;
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public BookingResponseDto getById(Long userId, Long bookingId) {
+    public BookingOutputDTO getById(Long userId, Long bookingId) {
 
-        return bookingResponseMapper.toDto(
-                bookingDao.findBookingByIdAndBooker_IdOrIdAndItem_Owner_Id(bookingId, userId, bookingId, userId)
+        return bookingMapper.toOutputDTO(
+                bookingDAO.findBookingByIdAndBooker_IdOrIdAndItem_Owner_Id(bookingId, userId, bookingId, userId)
                         .orElseThrow(() -> NotFoundException.builder()
                                 .message(String.format("The booking with the ID - `%d` was not found.", bookingId))
                                 .build()));
@@ -77,40 +72,39 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponseDto approveBooking(Long ownerId, Long bookingId, boolean approved) {
+    public BookingOutputDTO approveBooking(Long ownerId, Long bookingId, boolean approved) {
 
-        BookingResponseDto responseDto = bookingResponseMapper.toDto(
-                bookingDao.findById(bookingId).orElseThrow(() -> NotFoundException.builder()
+        BookingOutputDTO outputDto = bookingMapper.toOutputDTO(
+                bookingDAO.findById(bookingId).orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The booking with the ID - `%d` was not found.", bookingId))
                         .build()));
-        Long itemId = responseDto.getItem().getId();
+        Long itemId = outputDto.getItem().getId();
 
-        if (responseDto.getStatus() == APPROVED) {
+        if (outputDto.getStatus() == APPROVED) {
             throw ValidException.builder()
                     .message(String.format("The item with the ID - `%d` has already been booked.", itemId))
                     .build();
         }
 
-        if (!itemDao.existsItemByIdAndOwner_Id(itemId, ownerId)) {
+        if (!itemDAO.existsItemByIdAndOwner_Id(itemId, ownerId)) {
             throw NotFoundException.builder()
                     .message(String.format("The item with the ID - `%d` does not belong to the user with the ID - `%d`.", itemId, ownerId))
                     .build();
         }
 
         if (approved) {
-            bookingDao.approvedBooking(bookingId, APPROVED.toString());
-            responseDto.setStatus(APPROVED);
+            bookingDAO.approvedBooking(bookingId, APPROVED.toString());
+            outputDto.setStatus(APPROVED);
         } else {
-            bookingDao.approvedBooking(bookingId, REJECTED.toString());
-            responseDto.setStatus(REJECTED);
+            bookingDAO.approvedBooking(bookingId, REJECTED.toString());
+            outputDto.setStatus(REJECTED);
         }
 
-        return responseDto;
+        return outputDto;
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<BookingResponseDto> getAllBookingsAtBooker(Long bookerId, String queryState) {
+    public List<BookingOutputDTO> getAllBookingsAtBooker(Long bookerId, String queryState, Integer from, Integer size) {
 
         State state = validateState(queryState);
         validateUserById(bookerId);
@@ -118,23 +112,23 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByBooker_IdOrderByStartDesc(bookerId));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByBooker(bookerId, from, size));
             case CURRENT:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(bookerId, now, now));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(bookerId, now, from, size));
             case PAST:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(bookerId, now));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByBooker_IdAndEndIsBefore(bookerId, now, from, size));
             case FUTURE:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByBooker_IdAndStartIsAfterOrderByStartDesc(bookerId, now));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByBooker_IdAndStartIsAfter(bookerId, now, from, size));
             case WAITING:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByBooker_IdAndStatusOrderByStartDesc(bookerId, WAITING));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByBooker_IdAndStatus(bookerId, WAITING.toString(), from, size));
             case REJECTED:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByBooker_IdAndStatusOrderByStartDesc(bookerId, REJECTED));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByBooker_IdAndStatus(bookerId, REJECTED.toString(), from, size));
             default:
                 throw UnsupportedException.builder()
                         .message(String.format("Unknown state: %s", queryState))
@@ -143,8 +137,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<BookingResponseDto> getAllBookingsAtOwner(Long ownerId, String queryState) {
+    public List<BookingOutputDTO> getAllBookingsAtOwner(Long ownerId, String queryState, Integer from, Integer size) {
 
         State state = validateState(queryState);
         validateUserById(ownerId);
@@ -152,23 +145,23 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByItem_Owner_IdOrderByStartDesc(ownerId));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByItem_Owner_Id(ownerId, from, size));
             case CURRENT:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, now, now));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(ownerId, now, from, size));
             case PAST:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(ownerId, now));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByItem_Owner_IdAndEndIsBefore(ownerId, now, from, size));
             case FUTURE:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByItem_Owner_IdAndStartIsAfterOrderByStartDesc(ownerId, now));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByItem_Owner_IdAndStartIsAfter(ownerId, now, from, size));
             case WAITING:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, WAITING));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByItem_Owner_IdAndStatus(ownerId, WAITING.toString(), from, size));
             case REJECTED:
-                return bookingResponseMapper.toDtos(
-                        bookingDao.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, REJECTED));
+                return bookingMapper.toOutputDTOs(
+                        bookingDAO.findAllByItem_Owner_IdAndStatus(ownerId, REJECTED.toString(), from, size));
             default:
                 throw UnsupportedException.builder()
                         .message(String.format("Unknown state: %s", queryState))
@@ -187,10 +180,10 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void validateDateTime(BookingRequestDto requestDto) {
+    private void validateDateTime(BookingInputDTO inputDTO) {
 
-        LocalDateTime start = requestDto.getStart();
-        LocalDateTime end = requestDto.getEnd();
+        LocalDateTime start = inputDTO.getStart();
+        LocalDateTime end = inputDTO.getEnd();
 
         if (start.isAfter(end)) {
             throw ValidException.builder()
@@ -204,27 +197,27 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private UserResponseDto validateUserById(Long userId) {
+    private UserOutputDTO validateUserById(Long userId) {
 
-        return userResponseMapper.toDto(userDao.findById(userId)
+        return userMapper.toOutputDTO(userDAO.findById(userId)
                 .orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The user with the ID - `%d` was not found.", userId))
                         .build()));
     }
 
-    private ItemResponseDto validateItemById(Long itemId) {
+    private ItemShortOutputDTO validateItemById(Long itemId) {
 
-        ItemResponseDto item = itemResponseMapper.toDto(itemDao.findById(itemId)
+        ItemShortOutputDTO shortOutputDto = itemMapper.toShortOutputDTO(itemDAO.findById(itemId)
                 .orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The item with the ID - `%d` was not found.", itemId))
                         .build()));
 
-        if (!item.isAvailable()) {
+        if (!shortOutputDto.isAvailable()) {
             throw ValidException.builder()
                     .message(String.format("The item with the ID - `%d` is not available for rent.", itemId))
                     .build();
         }
 
-        return item;
+        return shortOutputDto;
     }
 }

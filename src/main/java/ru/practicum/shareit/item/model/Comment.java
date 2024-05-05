@@ -7,12 +7,12 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comments")
 @Getter
-@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Table(name = "comments")
+@Builder(toBuilder = true)
 public class Comment {
 
     @Id

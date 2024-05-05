@@ -9,7 +9,7 @@ import ru.practicum.shareit.user.model.User;
  *
  * @see JpaRepository
  */
-public interface UserDao extends JpaRepository<User, Long> {
+public interface UserDAO extends JpaRepository<User, Long> {
 
     /**
      * Checks if an entity with the given ID exists.
