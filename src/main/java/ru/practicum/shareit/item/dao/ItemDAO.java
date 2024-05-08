@@ -40,7 +40,7 @@ public interface ItemDAO extends JpaRepository<Item, Long> {
                     "LEFT JOIN users u on u.id = i.owner_id " +
                     "LEFT JOIN requests r on r.id = i.request_id " +
                     "WHERE i.owner_id = :ownerId " +
-                    "ORDER BY i.id OFFSET :from LIMIT :size")
+                    "ORDER BY i.id LIMIT :size OFFSET :from")
     List<Item> findAllByOwnerIdOrderById(Long ownerId, Integer from, Integer size);
 
     /**
@@ -54,7 +54,7 @@ public interface ItemDAO extends JpaRepository<Item, Long> {
             value = "SELECT * FROM items AS i " +
                     "WHERE (name ILIKE CONCAT('%', :text, '%') AND available = TRUE) " +
                     "OR (description ILIKE CONCAT('%', :text, '%') AND available = TRUE)" +
-                    "ORDER BY i.id OFFSET :from LIMIT :size")
+                    "ORDER BY i.id LIMIT :size OFFSET :from")
     List<Item> findAllByNameOrDescriptionContains(String text, Integer from, Integer size);
 
     /**

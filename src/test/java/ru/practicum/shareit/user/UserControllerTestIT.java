@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.dto.UserOutputDTO;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class UserControllerIntegrationTest {
+public class UserControllerTestIT {
 
     @Autowired
     private MockMvc mvc;
@@ -40,8 +41,7 @@ public class UserControllerIntegrationTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private final Long userId1 = 1L;
     private final Long userId2 = 3L;
-    private final Long invalidUserId = 999L;
-
+    private final Long invalidId = 999L;
 
     public void setUp() {
 
@@ -56,12 +56,11 @@ public class UserControllerIntegrationTest {
                 .build();
     }
 
-
     @Test
     @Order(0)
     @SneakyThrows
     @DisplayName("Integration Test: создать пользователя, возвращается ответ: HttpStatus.CREATED.")
-    public void testCreateUser_ReturnsStatusCreated() {
+    public void testCreateUser_ResulStatusCreated() {
         log.info("Start test: создать пользователя.");
         setUp();
 
@@ -80,7 +79,7 @@ public class UserControllerIntegrationTest {
     @Order(1)
     @SneakyThrows
     @DisplayName("Integration Test: создать пользователя с существующим email, возвращается ответ: HttpStatus.CONFLICT.")
-    public void testCreateUser_WithDuplicateEmail_ReturnsStatusConflict() {
+    public void testCreateUser_WithDuplicateEmail_ResulStatusConflict() {
         log.info("Start test: создать пользователя с существующим email.");
         setUp();
 
@@ -99,7 +98,7 @@ public class UserControllerIntegrationTest {
     @Order(2)
     @SneakyThrows
     @DisplayName("Integration Test: получить пользователя по ID, возвращается ответ: HttpStatus.OK.")
-    public void testGetUserById_ReturnsStatusOk() {
+    public void testGetUserById_ResulStatusOk() {
         log.info("Start test: получить пользователя по ID.");
         setUp();
 
@@ -115,10 +114,10 @@ public class UserControllerIntegrationTest {
     @Order(3)
     @SneakyThrows
     @DisplayName("Integration Test: получить пользователя по неверному ID, возвращается ответ: HttpStatus.NOT_FOUND.")
-    public void testGetUserById_WithInvalidId_ReturnsStatusNotFound() {
+    public void testGetUserById_WithInvalidId_ResulStatusNotFound() {
         log.info("Start test: получить пользователя по неверному ID.");
 
-        mvc.perform(get("/users/{invalidUserId}", invalidUserId))
+        mvc.perform(get("/users/{invalidUserId}", invalidId))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         NotFoundException.class));
@@ -130,10 +129,10 @@ public class UserControllerIntegrationTest {
     @Order(4)
     @SneakyThrows
     @DisplayName("Integration Test: обновить пользователя, только поле email, возвращается ответ: HttpStatus.OK.")
-    public void testUpdateUser_OnlyEmail_ReturnsStatusOk() {
+    public void testUpdateUser_OnlyEmail_ResulStatusOk() {
         log.info("Start test: обновить пользователя, только поле email.");
         setUp();
-        userInputDTO = userInputDTO.toBuilder().email("updateRuRu@yandex.ru").build();
+        UserInputDTO userInputDTO = UserInputDTO.builder().email("updateRuRu@yandex.ru").build();
         userOutputDTO = userOutputDTO.toBuilder().email("updateRuRu@yandex.ru").build();
 
         mvc.perform(patch("/users/{userId}", userId1)
@@ -150,12 +149,12 @@ public class UserControllerIntegrationTest {
     @Order(5)
     @SneakyThrows
     @DisplayName("Integration Test: обновить пользователя по неверному ID, возвращается ответ: HttpStatus.NOT_FOUND.")
-    public void testUpdateUser_WithInvalidId_ReturnsStatusNotFound() {
+    public void testUpdateUser_WithInvalidId_ResulStatusNotFound() {
         log.info("Start test: обновить пользователя по неверному ID.");
         setUp();
         userInputDTO = userInputDTO.toBuilder().name("updateRuRu").build();
 
-        mvc.perform(patch("/users/{userId}", invalidUserId)
+        mvc.perform(patch("/users/{userId}", invalidId)
                         .content(mapper.writeValueAsString(userInputDTO))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -170,7 +169,7 @@ public class UserControllerIntegrationTest {
     @Order(6)
     @SneakyThrows
     @DisplayName("Integration Test: создать пользователя со старым полем email, возвращается ответ: HttpStatus.CREATED.")
-    public void testCreateUser_WithOldEmail_ReturnsStatusCreated() {
+    public void testCreateUser_WithOldEmail_ResulStatusCreated() {
         log.info("Start test: создать пользователя со старым полем email.");
         setUp();
         userOutputDTO = userOutputDTO.toBuilder().id(3L).build();
@@ -189,10 +188,10 @@ public class UserControllerIntegrationTest {
     @Order(7)
     @SneakyThrows
     @DisplayName("Integration Test: обновить пользователя, только поле name, возвращается ответ: HttpStatus.OK.")
-    public void testUpdateUser_OnlyName_ReturnsStatusOk() {
+    public void testUpdateUser_OnlyName_ResulStatusOk() {
         log.info("Start test: обновить пользователя, только поле name.");
         setUp();
-        userInputDTO = userInputDTO.toBuilder().name("updateRuRu").build();
+        UserInputDTO userInputDTO = UserInputDTO.builder().name("updateRuRu").build();
         userOutputDTO = userOutputDTO.toBuilder().id(userId2).name("updateRuRu").build();
 
         mvc.perform(patch("/users/{userId}", userId2)
@@ -209,7 +208,7 @@ public class UserControllerIntegrationTest {
     @Order(8)
     @SneakyThrows
     @DisplayName("Integration Test: обновить пользователя с существующим email, возвращается ответ: HttpStatus.CONFLICT.")
-    public void testUpdateUser_WithDuplicateEmail_ReturnsStatusConflict() {
+    public void testUpdateUser_WithDuplicateEmail_ResulStatusConflict() {
         log.info("Start test: обновить пользователя с существующим email.");
         setUp();
         userInputDTO = userInputDTO.toBuilder().email("updateRuRu@yandex.ru").build();
@@ -229,7 +228,7 @@ public class UserControllerIntegrationTest {
     @Order(9)
     @SneakyThrows
     @DisplayName("Integration Test: получить всех пользователей, возвращается ответ: HttpStatus.OK.")
-    public void testGetAllUser_ReturnsStatusOk() {
+    public void testGetAllUser_ResulStatusOk() {
         log.info("Start test: получить всех пользователей.");
 
         UserOutputDTO userOutputDTO1 = UserOutputDTO.builder()
@@ -244,11 +243,11 @@ public class UserControllerIntegrationTest {
                 .name("updateRuRu")
                 .build();
 
-        List<UserOutputDTO> userList = Arrays.asList(userOutputDTO1, userOutputDTO2);
+        List<UserOutputDTO> users = Arrays.asList(userOutputDTO1, userOutputDTO2);
 
         mvc.perform(get("/users"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(userList)));
+                .andExpect(content().json(mapper.writeValueAsString(users)));
 
         log.info("End test: получить всех пользователей, возвращается ответ: HttpStatus.OK.");
     }
@@ -257,7 +256,7 @@ public class UserControllerIntegrationTest {
     @Order(10)
     @SneakyThrows
     @DisplayName("Integration Test: удалить пользователя по ID, возвращается ответ: HttpStatus.NO_CONTENT.")
-    public void testDeleteUser_ReturnsStatusOk() {
+    public void testDeleteUser_ResulStatusOk() {
         log.info("Start test: удалить пользователя по ID.");
 
         mvc.perform(delete("/users/{userId}", userId1))
@@ -270,7 +269,7 @@ public class UserControllerIntegrationTest {
     @Order(11)
     @SneakyThrows
     @DisplayName("Integration Test: получить всех пользователей после удаления пользователя с ID = 1, возвращается ответ: HttpStatus.OK.")
-    public void testGetAllUser_AfterDeleteUser_ReturnsStatusOk() {
+    public void testGetAllUser_AfterDeleteUser_ResulStatusOk() {
         log.info("Start test: получить всех пользователей после удаления пользователя с ID = 1.");
 
         UserOutputDTO userOutputDTO2 = UserOutputDTO.builder()
@@ -279,11 +278,11 @@ public class UserControllerIntegrationTest {
                 .name("updateRuRu")
                 .build();
 
-        List<UserOutputDTO> userList = Arrays.asList(userOutputDTO2);
+        List<UserOutputDTO> users = Collections.singletonList(userOutputDTO2);
 
         mvc.perform(get("/users"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(userList)));
+                .andExpect(content().json(mapper.writeValueAsString(users)));
 
         log.info("End test: получить всех пользователей после удаления пользователя с ID = 1, возвращается ответ: HttpStatus.OK.");
     }
@@ -292,7 +291,7 @@ public class UserControllerIntegrationTest {
     @Order(12)
     @SneakyThrows
     @DisplayName("Integration Test: удалить пользователя по неверному ID, возвращается ответ: HttpStatus.NOT_FOUND.")
-    public void testDeleteUser_WithInvalidId_ReturnsStatusOk() {
+    public void testDeleteUser_WithInvalidId_ResulStatusOk() {
         log.info("Start test: удалить пользователя по неверному ID.");
 
         mvc.perform(delete("/users/{userId}", userId1))

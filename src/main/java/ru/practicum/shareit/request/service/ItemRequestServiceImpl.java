@@ -39,6 +39,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    public ItemRequestOutputDTO getByRequestId(Long userId, Long requestId) {
+
+        checkExistsUserById(userId);
+
+        ItemRequestOutputDTO outputDTO = itemRequestMapper.toOutputDTO(itemRequestDAO.findById(requestId)
+                .orElseThrow(() -> NotFoundException.builder()
+                        .message(String.format("The itemRequest with the ID - `%d` was not found.", requestId))
+                        .build()));
+
+        outputDTO.setItems(itemMapper.toShortOutputDTOs(itemDAO.findAllByRequest_Id(requestId)));
+
+        return outputDTO;
+    }
+
+    @Override
     public List<ItemRequestOutputDTO> getAllByRequesterId(Long requesterId) {
 
         checkExistsUserById(requesterId);
@@ -57,7 +72,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return setItemsToRequests(outputDTOs);
     }
 
-
     private List<ItemRequestOutputDTO> setItemsToRequests(List<ItemRequestOutputDTO> outputDTOs) {
         List<Long> requestIds = outputDTOs.stream()
                 .map(ItemRequestOutputDTO::getId)
@@ -70,21 +84,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return outputDTOs.stream()
                 .peek(r -> r.setItems(items.getOrDefault(r.getId(), new ArrayList<>())))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public ItemRequestOutputDTO getByRequestId(Long userId, Long requestId) {
-
-        checkExistsUserById(userId);
-
-        ItemRequestOutputDTO outputDTO = itemRequestMapper.toOutputDTO(itemRequestDAO.findById(requestId)
-                .orElseThrow(() -> NotFoundException.builder()
-                        .message(String.format("The itemRequest with the ID - `%d` was not found.", requestId))
-                        .build()));
-
-        outputDTO.setItems(itemMapper.toShortOutputDTOs(itemDAO.findAllByRequest_Id(requestId)));
-
-        return outputDTO;
     }
 
     private void checkExistsUserById(Long userId) {

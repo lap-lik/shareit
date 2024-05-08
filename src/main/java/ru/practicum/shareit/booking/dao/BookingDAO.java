@@ -42,7 +42,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE b.booker_id = :bookerId " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByBooker(Long bookerId, Integer from, Integer size);
 
     /**
@@ -79,7 +79,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE b.booker_id = :bookerId AND b.start_data < :now AND b.end_data > :now " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(Long bookerId, LocalDateTime now, Integer from, Integer size);
 
     /**
@@ -96,7 +96,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE b.booker_id = :bookerId AND b.end_data < :now " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByBooker_IdAndEndIsBefore(Long bookerId, LocalDateTime now, Integer from, Integer size);
 
     /**
@@ -115,7 +115,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE b.booker_id = :bookerId AND b.start_data > :now " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByBooker_IdAndStartIsAfter(Long bookerId, LocalDateTime now, Integer from, Integer size);
 
     /**
@@ -132,7 +132,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE b.booker_id = :bookerId AND b.status = :status " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByBooker_IdAndStatus(Long bookerId, String status, Integer from, Integer size);
 
     /**
@@ -148,7 +148,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE i.owner_id = :ownerId " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByItem_Owner_Id(Long ownerId, Integer from, Integer size);
 
     /**
@@ -167,7 +167,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE i.owner_id = :ownerId AND b.start_data < :now AND b.end_data > :now " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(Long ownerId, LocalDateTime now, Integer from, Integer size);
 
     /**
@@ -186,7 +186,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE i.owner_id = :ownerId AND b.end_data < :now " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByItem_Owner_IdAndEndIsBefore(Long ownerId, LocalDateTime now, Integer from, Integer size);
 
     /**
@@ -205,7 +205,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE i.owner_id = :ownerId AND b.start_data > :now " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByItem_Owner_IdAndStartIsAfter(Long ownerId, LocalDateTime now, Integer from, Integer size);
 
     /**
@@ -224,7 +224,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
                     "LEFT JOIN users u on u.id = b.booker_id " +
                     "LEFT JOIN items i on i.id = b.item_id " +
                     "WHERE i.owner_id = :ownerId AND b.status = :status " +
-                    "ORDER BY b.start_data DESC OFFSET :from LIMIT :size")
+                    "ORDER BY b.start_data DESC LIMIT :size OFFSET :from")
     List<Booking> findAllByItem_Owner_IdAndStatus(Long ownerId, String status, Integer from, Integer size);
 
     /**

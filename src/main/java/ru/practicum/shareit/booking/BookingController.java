@@ -28,7 +28,7 @@ public class BookingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingOutputDTO createBooking(@RequestHeader(REQUEST_HEADER_USER_ID) Long bookerId,
-                                          @Valid @RequestBody BookingInputDTO inputDTO) {
+                                          @Valid @RequestBody final BookingInputDTO inputDTO) {
 
         log.info("START endpoint `method:POST /bookings` (create booking), booking itemId: {}.", inputDTO.getItemId());
         inputDTO.setBookerId(bookerId);

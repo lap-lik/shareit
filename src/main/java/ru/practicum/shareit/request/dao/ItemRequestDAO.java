@@ -13,6 +13,6 @@ public interface ItemRequestDAO extends JpaRepository<ItemRequest, Long> {
     @Query(nativeQuery = true,
             value = "SELECT * FROM requests AS r " +
                     "LEFT JOIN public.users u on u.id = r.requester_id " +
-                    "WHERE NOT r.requester_id = :userId ORDER BY r.id OFFSET :from LIMIT :size")
+                    "WHERE NOT r.requester_id = :userId ORDER BY r.id LIMIT :size OFFSET :from")
     List<ItemRequest> findAllFromOtherUsers(Long userId, Integer from, Integer size);
 }

@@ -89,6 +89,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemOutputDTO getById(Long userId, Long itemId) {
 
+        checkExistsUserById(userId);
         ItemOutputDTO outputDto = itemMapper.toItemOutputDTO(itemDao.findById(itemId)
                 .orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The item with the ID - `%d` was not found.", itemId))

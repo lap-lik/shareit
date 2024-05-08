@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,19 +14,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserInputDTO;
 import ru.practicum.shareit.user.dto.UserOutputDTO;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 @ActiveProfiles("test")
 @WebMvcTest(controllers = UserController.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserControllerTest {
 
     @Autowired
@@ -46,21 +43,16 @@ class UserControllerTest {
     private ObjectMapper mapper;
 
     @MockBean
-    private UserService userService;
+    private UserService service;
 
-    private User user;
     private UserInputDTO userInputDTO;
     private UserOutputDTO userOutputDTO;
     private final Long userId = 1L;
-    private final Long invalidUserId = 999L;
+    private final Long invalidId = 999L;
     private final NotFoundException notFoundException = NotFoundException.builder().message("Exception").build();
 
     void setUp() {
-        user = User.builder()
-                .id(userId)
-                .email("ruru@yandex.ru")
-                .name("RuRu")
-                .build();
+
         userInputDTO = UserInputDTO.builder()
                 .id(null)
                 .email("ruru@yandex.ru")
@@ -77,7 +69,7 @@ class UserControllerTest {
     @SneakyThrows
     @DisplayName("WebMvcTest: создать пользователя, передается пустое поле name, " +
             "возвращается ответ: HttpStatus.BAD_REQUEST.")
-    void testCreateUser_WithEmptyName_ResultException() {
+    void testCreateUser_WithEmptyName_ResultStatusBadRequest() {
 
         log.info("Start test: создания пользователя, передается пустое поле name.");
         setUp();
@@ -89,11 +81,11 @@ class UserControllerTest {
                         .content(mapper.writeValueAsString(userInputDTO))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         ConstraintViolationException.class));
 
-        verify(userService, never()).create(userInputDTO);
+        verify(service, never()).create(any(UserInputDTO.class));
 
         log.info("End test: создать пользователя, передается пустое поле name, " +
                 "возвращается ответ: HttpStatus.BAD_REQUEST.");
@@ -101,9 +93,35 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
+    @DisplayName("WebMvcTest: создать пользователя, передается пустое поле email, " +
+            "возвращается ответ: HttpStatus.BAD_REQUEST.")
+    void testCreateUser_WithEmptyEmail_ResultStatusBadRequest() {
+
+        log.info("Start test: создать пользователя, передается пустое поле email.");
+        setUp();
+        userInputDTO = userInputDTO.toBuilder()
+                .email(null)
+                .build();
+
+        mvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(userInputDTO))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
+                        ConstraintViolationException.class));
+
+        verify(service, never()).create(any(UserInputDTO.class));
+
+        log.info("End test: создать пользователя, передается пустое поле email, " +
+                "возвращается ответ: HttpStatus.BAD_REQUEST.");
+    }
+
+    @Test
+    @SneakyThrows
     @DisplayName("WebMvcTest: создать пользователя, передается невалидное поле email, " +
             "возвращается ответ: HttpStatus.BAD_REQUEST.")
-    void testCreateUser_WithInvalidEmail_ResultException() {
+    void testCreateUser_WithInvalidEmail_ResultStatusBadRequest() {
 
         log.info("Start test: создать пользователя, передается невалидное поле email.");
         setUp();
@@ -115,11 +133,11 @@ class UserControllerTest {
                         .content(mapper.writeValueAsString(userInputDTO))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         ConstraintViolationException.class));
 
-        verify(userService, never()).create(userInputDTO);
+        verify(service, never()).create(any(UserInputDTO.class));
 
         log.info("End test: создать пользователя, передается невалидное поле email, " +
                 "возвращается ответ: HttpStatus.BAD_REQUEST.");
@@ -128,12 +146,12 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     @DisplayName("WebMvcTest: создать пользователя, возвращается ответ: HttpStatus.CREATED.")
-    void testCreateUser_ResultCreated() {
+    void testCreateUser_ResultStatusCreated() {
 
         log.info("Start test: создать пользователя.");
         setUp();
 
-        when(userService.create(any(UserInputDTO.class))).thenReturn(userOutputDTO);
+        when(service.create(any(UserInputDTO.class))).thenReturn(userOutputDTO);
 
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(userInputDTO))
@@ -143,7 +161,7 @@ class UserControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().json(mapper.writeValueAsString(userOutputDTO)));
 
-        verify(userService, times(1)).create(any(UserInputDTO.class));
+        verify(service, times(1)).create(any(UserInputDTO.class));
 
         log.info("End test: создать пользователя, возвращается ответ: HttpStatus.CREATED.");
     }
@@ -151,18 +169,18 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     @DisplayName("WebMvcTest: получить пользователя по ID, возвращается ответ: HttpStatus.OK.")
-    void testGetUser_ById_ResultOk() {
+    void testGetUser_ById_ResultStatusOk() {
 
         log.info("Start test: получить пользователя по ID.");
         setUp();
 
-        when(userService.getById(anyLong())).thenReturn(userOutputDTO);
+        when(service.getById(anyLong())).thenReturn(userOutputDTO);
 
         mvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(userOutputDTO)));
 
-        verify(userService, times(1)).getById(anyLong());
+        verify(service, times(1)).getById(anyLong());
 
         log.info("End test: получить пользователя по ID, возвращается ответ: HttpStatus.OK.");
     }
@@ -170,22 +188,68 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     @DisplayName("WebMvcTest: получить пользователя по неверному ID, возвращается ответ: HttpStatus.NOT_FOUND.")
-    void testGetUser_ByInvalidId_ResultNotFound() {
+    void testGetUser_ByInvalidId_ResultStatusNotFound() {
 
         log.info("Start test: получить пользователя по неверному ID.");
         setUp();
 
-        when(userService.getById(anyLong())).thenThrow(notFoundException);
+        when(service.getById(anyLong())).thenThrow(notFoundException);
 
-        mvc.perform(get("/users/{invalidUserId}", invalidUserId))
+        mvc.perform(get("/users/{userId}", invalidId))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         NotFoundException.class));
 
 
-        verify(userService, times(1)).getById(invalidUserId);
+        verify(service, times(1)).getById(invalidId);
 
         log.info("End test: получить пользователя по неверному ID, возвращается ответ: HttpStatus.NOT_FOUND.");
     }
 
+    @Test
+    @SneakyThrows
+    @DisplayName("WebMvcTest: получить всех пользователей, возвращается ответ: HttpStatus.OK.")
+    void testGetAllUsers_ResultStatusOk() {
+
+        log.info("Start test: получить всех пользователей.");
+        UserOutputDTO userOutputDTO1 = UserOutputDTO.builder()
+                .id(1L)
+                .email("updateRuRu@yandex.ru")
+                .name("RuRu")
+                .build();
+
+        UserOutputDTO userOutputDTO2 = UserOutputDTO.builder()
+                .id(3L)
+                .email("RuRu@yandex.ru")
+                .name("updateRuRu")
+                .build();
+
+        List<UserOutputDTO> userList = Arrays.asList(userOutputDTO1, userOutputDTO2);
+
+        when(service.getAll()).thenReturn(userList);
+
+        mvc.perform(get("/users"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(mapper.writeValueAsString(userList)));
+
+        verify(service, times(1)).getAll();
+
+        log.info("End test: получить всех пользователей, возвращается ответ: HttpStatus.OK.");
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("WebMvcTest: удалить пользователя по ID, возвращается ответ: HttpStatus.NO_CONTENT.")
+    void testDeleteUser_ResultStatusNoContent() {
+
+        log.info("Start test: удалить пользователя по ID.");
+        setUp();
+
+        mvc.perform(delete("/users/{userId}", userId))
+                .andExpect(status().isNoContent());
+
+        verify(service, times(1)).deleteById(userId);
+
+        log.info("End test: удалить пользователя по ID, возвращается ответ: HttpStatus.NO_CONTENT.");
+    }
 }
