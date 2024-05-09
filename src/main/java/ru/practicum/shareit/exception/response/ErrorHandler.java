@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import ru.practicum.shareit.booking.BookingController;
-import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotImplementedException;
+import ru.practicum.shareit.exception.UnsupportedException;
+import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.user.UserController;
@@ -22,18 +25,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice(assignableTypes = {ItemController.class, UserController.class,
         BookingController.class, ItemRequestController.class, UserDAO.class})
 public class ErrorHandler extends ResponseEntityExceptionHandler {
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(BadRequestException.class)
-    public ErrorResponse onBadRequestException(final BadRequestException exception) {
-
-        log.warn("Exception: {}, Bad request: \n- {}", exception.getClass().getName(), exception.getMessage());
-
-        return ErrorResponse.builder()
-                .error(exception.getClass().getName())
-                .message(exception.getMessage())
-                .build();
-    }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({ValidException.class, ConstraintViolationException.class})
