@@ -97,7 +97,8 @@ public class BookingControllerIntegrationTest {
         itemDAO.save(item3);
     }
 
-    void setUpBooking() {
+    @BeforeEach
+    void setUp() {
         mapper.registerModule(new JavaTimeModule());
         user1 = User.builder()
                 .email("ruru@yandex.ru")
@@ -181,7 +182,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: создать резервирование предмета, возвращается ответ: HttpStatus.CREATED.")
     public void testCreateBooking_ResulStatusCreated() {
         log.info("Start test: создать резервирование предмета.");
-        setUpBooking();
         init();
 
         mvc.perform(post("/bookings")
@@ -204,7 +204,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предмета по ID, возвращается ответ: HttpStatus.OK.")
     public void testGetBookingById_ResulStatusOk() {
         log.info("Start test: получить пользователя по ID.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/{bookingId}", bookingId1)
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -224,7 +223,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: обновить резервирование предмета, передается ID несуществующего пользователя, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testUpdateBooking_WithInvalidUserId_ResulStatusNotFound() {
         log.info("Start test: обновить резервирование предмета, передается ID несуществующего пользователя.");
-        setUpBooking();
 
         mvc.perform(patch("/bookings/{bookingId}", bookingId1)
                         .header(REQUEST_HEADER_USER_ID, invalidId)
@@ -244,7 +242,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: обновить резервирование предмета, передается ID несуществующего бронирования, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testUpdateBooking_WithInvalidBookingId_ResulStatusNotFound() {
         log.info("Start test: обновить резервирование предмета, передается ID несуществующего бронирования.");
-        setUpBooking();
 
         mvc.perform(patch("/bookings/{bookingId}", invalidId)
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -264,7 +261,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: обновить резервирование предмета, передается ID пользователя не являющегося создателем предмета, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testUpdateBooking_WithUserNotItemOwner_ResulStatusNotFound() {
         log.info("Start test: обновить резервирование предмета, передается ID пользователя не являющегося создателем предмета.");
-        setUpBooking();
 
         mvc.perform(patch("/bookings/{bookingId}", bookingId1)
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -284,7 +280,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: обновить резервирование предмета, отклонение бронирования, возвращается ответ: HttpStatus.OK.")
     public void testUpdateBooking_WithRejected_ResulStatusOk() {
         log.info("Start test: обновить резервирование предмета, отклонение бронирования.");
-        setUpBooking();
 
         bookingOutputDTO = bookingOutputDTO.toBuilder()
                 .status(Status.REJECTED)
@@ -309,7 +304,7 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: обновить резервирование предмета, подтверждение бронирования, возвращается ответ: HttpStatus.OK.")
     public void testUpdateBooking_WithApproved_ResulStatusOk() {
         log.info("Start test: обновить резервирование предмета, подтверждение бронирования.");
-        setUpBooking();
+
         bookingOutputDTO = bookingOutputDTO.toBuilder()
                 .status(Status.APPROVED)
                 .build();
@@ -333,7 +328,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: обновить резервирование предмета, отклонение бронирования после подтверждения, возвращается ответ: HttpStatus.BAD_REQUEST.")
     public void testUpdateBooking_WithRejectedAfterApproved_ResulStatusBadRequest() {
         log.info("Start test: обновить резервирование предмета, отклонение бронирования после подтверждения.");
-        setUpBooking();
 
         mvc.perform(patch("/bookings/{bookingId}", bookingId1)
                         .header(REQUEST_HEADER_USER_ID, userId2)
@@ -353,7 +347,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, все от создателя бронирований, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserBookerAndStateAll_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, все от создателя бронирований.");
-        setUpBooking();
 
         bookingOutputDTO = BookingOutputDTO.builder()
                 .id(bookingId1)
@@ -378,7 +371,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, действующие от создателя бронирований, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserBookerAndStateCurrent_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, действующие от создателя бронирований.");
-        setUpBooking();
 
         mvc.perform(get("/bookings")
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -398,7 +390,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, прошедшие от создателя бронирований, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserBookerAndStatePast_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, прошедшие от создателя бронирований.");
-        setUpBooking();
 
         mvc.perform(get("/bookings")
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -418,7 +409,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, будущие от создателя бронирований, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserBookerAndStateFuture_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, будущие от создателя бронирований.");
-        setUpBooking();
 
         bookingOutputDTO = BookingOutputDTO.builder()
                 .id(bookingId1)
@@ -443,7 +433,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, не подтвержденные от создателя бронирований, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserBookerAndStateWaiting_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, не подтвержденные от создателя бронирований.");
-        setUpBooking();
 
         mvc.perform(get("/bookings")
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -463,7 +452,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, отклоненные от создателя бронирований, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserBookerAndStateRejected_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, отклоненные от создателя бронирований.");
-        setUpBooking();
 
         mvc.perform(get("/bookings")
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -483,7 +471,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, с несуществующим статусом от создателя бронирований, возвращается ответ: HttpStatus.BAD_REQUEST.")
     public void testGetAllBookings_WithUserBookerAndStateUnknown_ResulStatusBadRequest() {
         log.info("Start test: получить резервирование предметов, с несуществующим статусом от создателя бронирований.");
-        setUpBooking();
 
         mvc.perform(get("/bookings")
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -504,7 +491,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предмета по несуществующему ID, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testGetBookingById_WithInvalidBookingId_ResulStatusNotFound() {
         log.info("Start test: получить пользователя по несуществующему ID.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/{bookingId}", invalidId)
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -525,7 +511,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, все от создателя предметов, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserItemOwner_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, все от создателя предметов.");
-        setUpBooking();
 
         bookingOutputDTO = BookingOutputDTO.builder()
                 .id(bookingId1)
@@ -550,7 +535,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, действующие от создателя предметов, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserItemOwnerAndStateCurrent_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, действующие от создателя предметов.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/owner")
                         .header(REQUEST_HEADER_USER_ID, userId2)
@@ -570,7 +554,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, прошедшие от создателя предметов, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserItemOwnerAndStatePast_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, прошедшие от создателя предметов.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/owner")
                         .header(REQUEST_HEADER_USER_ID, userId2)
@@ -590,7 +573,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, будущие от создателя предметов, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserItemOwnerAndStateFuture_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, будущие от создателя предметов.");
-        setUpBooking();
 
         bookingOutputDTO = BookingOutputDTO.builder()
                 .id(bookingId1)
@@ -615,7 +597,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, не подтвержденные от создателя предметов, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserItemOwnerAndStateWaiting_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, не подтвержденные от создателя предметов.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/owner")
                         .header(REQUEST_HEADER_USER_ID, userId2)
@@ -635,7 +616,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, отклоненные от создателя предметов, возвращается ответ: HttpStatus.OK.")
     public void testGetAllBookings_WithUserItemOwnerAndStateRejected_ResulStatusOk() {
         log.info("Start test: получить резервирование предметов, отклоненные от создателя предметов.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/owner")
                         .header(REQUEST_HEADER_USER_ID, userId2)
@@ -655,7 +635,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, с несуществующим статусом от создателя предметов, возвращается ответ: HttpStatus.BAD_REQUEST.")
     public void testGetAllBookings_WithUserItemOwnerAndStateUnknown_ResulStatusBadRequest() {
         log.info("Start test: получить резервирование предметов, с несуществующим статусом от создателя предметов.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/owner")
                         .header(REQUEST_HEADER_USER_ID, userId2)
@@ -676,7 +655,6 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: получить резервирование предметов, все от создателя предметов несуществующего ID, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testGetAllBookings_WithUserItemOwnerInvalidId_ResulStatusNotFound() {
         log.info("Start test: получить резервирование предметов, все от создателя предметов несуществующего ID.");
-        setUpBooking();
 
         mvc.perform(get("/bookings/owner")
                         .header(REQUEST_HEADER_USER_ID, invalidId)
@@ -697,7 +675,7 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: создать резервирование предмета, от создателя предмета, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testCreateBooking_WithUserItemBooker_ResulStatusNotFound() {
         log.info("Start test: создать резервирование предмета, от создателя предмета.");
-        setUpBooking();
+
         bookingInputDTO = BookingInputDTO.builder()
                 .start(startTime)
                 .end(endTime)
@@ -723,7 +701,7 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: создать резервирование предмета, по неправильному ID редмета, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testCreateBooking_WithItemIdInvalid_ResulStatusNotFound() {
         log.info("Start test: создать резервирование предмета, по неправильному ID редмета.");
-        setUpBooking();
+
         bookingInputDTO = BookingInputDTO.builder()
                 .start(startTime)
                 .end(endTime)
@@ -749,7 +727,7 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: создать резервирование предмета, начала аренды позже завершения, возвращается ответ: HttpStatus.BAD_REQUEST.")
     public void testCreateBooking_WithStartAfterEndTime_ResulStatusBadRequest() {
         log.info("Start test: создать резервирование предмета, начала аренды позже завершения.");
-        setUpBooking();
+
         bookingInputDTO = BookingInputDTO.builder()
                 .start(LocalDateTime.now().plusDays(2))
                 .end(LocalDateTime.now().plusDays(1))
@@ -775,7 +753,7 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: создать резервирование предмета, начала аренды совпадает с завершением, возвращается ответ: HttpStatus.BAD_REQUEST.")
     public void testCreateBooking_WithStartEqualsEndTime_ResulStatusBadRequest() {
         log.info("Start test: создать резервирование предмета, начала аренды совпадает с завершением.");
-        setUpBooking();
+
         LocalDateTime startAndEndTime = LocalDateTime.now().plusDays(1);
         bookingInputDTO = BookingInputDTO.builder()
                 .start(startAndEndTime)
@@ -802,7 +780,7 @@ public class BookingControllerIntegrationTest {
     @DisplayName("Integration Test: создать резервирование предмета, с недоступным к бронированию предметом, возвращается ответ: HttpStatus.BAD_REQUEST.")
     public void testCreateBooking_WithItemStatusNotAvailable_ResulStatusBadRequest() {
         log.info("Start test: создать резервирование предмета, с недоступным к бронированию предметом.");
-        setUpBooking();
+
         bookingInputDTO = BookingInputDTO.builder()
                 .start(startTime)
                 .end(endTime)

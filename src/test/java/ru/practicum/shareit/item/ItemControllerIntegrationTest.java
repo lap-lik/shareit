@@ -76,6 +76,7 @@ class ItemControllerIntegrationTest {
         userDAO.save(user2);
     }
 
+    @BeforeEach
     public void setUp() {
 
         inputDTO = ItemInputDTO.builder()
@@ -107,7 +108,6 @@ class ItemControllerIntegrationTest {
     public void testCreateItem_ReturnsStatusCreated() {
         log.info("Start test: создать предмет №1 пользователем №1.");
         init();
-        setUp();
 
         mvc.perform(post("/items")
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -127,7 +127,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: создать предмет с неверным ID пользователя, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testCreateItem_WithInvalidUserId_ReturnsStatusNotFound() {
         log.info("Start test: создать предмет с неверным ID пользователя.");
-        setUp();
 
         mvc.perform(post("/items")
                         .header(REQUEST_HEADER_USER_ID, invalidId)
@@ -147,7 +146,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: обновить предмет с неверным ID, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testUpdateItem1_WithInvalidItemId_ReturnsStatusNotFound() {
         log.info("Start test: обновить предмет с неверным ID.");
-        setUp();
 
         inputDTO.toBuilder().name("Дрель--").build();
 
@@ -169,7 +167,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: создать №2 предмет пользователем №2, возвращается ответ: HttpStatus.CREATED.")
     public void testCreateItem2_WithUser2_ReturnsStatusCreated() {
         log.info("Start test: создать №2 предмет пользователем №2.");
-        setUp();
 
         inputDTO = inputDTO.toBuilder()
                 .name("Отвертка")
@@ -202,7 +199,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: создать предмет №3 пользователем №2, возвращается ответ: HttpStatus.CREATED.")
     public void testCreateItem3_WithUser2_ReturnsStatusCreated() {
         log.info("Start test: создать предмет №3 пользователем №2.");
-        setUp();
 
         inputDTO = inputDTO.toBuilder()
                 .name("Телевизор")
@@ -235,7 +231,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: получить предмет по ID, возвращается ответ: HttpStatus.Ok.")
     public void testGetItem_ReturnsStatusOk() {
         log.info("Start test: получить предмет по ID.");
-        setUp();
 
         mvc.perform(get("/items/{itemId}", itemId1)
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -252,7 +247,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: получить предмет по ID и не создателем предмета, возвращается ответ: HttpStatus.Ok.")
     public void testGetItem_WithUserIdNotOwner_ReturnsStatusOk() {
         log.info("Start test: получить предмет по ID и не создателем предмета.");
-        setUp();
 
         mvc.perform(get("/items/{itemId}", itemId1)
                         .header(REQUEST_HEADER_USER_ID, userId2)
@@ -269,7 +263,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: получить предмет по неверному ID, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testGetItem_WithInvalidItemId_ReturnsStatusNotFound() {
         log.info("Start test: получить предмет по неверному ID.");
-        setUp();
 
         mvc.perform(get("/items/{itemId}", invalidId)
                         .header(REQUEST_HEADER_USER_ID, userId1)
@@ -287,7 +280,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: получить предмет по неверному ID пользователя, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testGetItem_WithInvalidUserId_ReturnsStatusNotFound() {
         log.info("Start test: получить предмет по неверному ID пользователя.");
-        setUp();
 
         mvc.perform(get("/items/{itemId}", itemId1)
                         .header(REQUEST_HEADER_USER_ID, invalidId)
@@ -367,7 +359,7 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: создать комментарий, возвращается ответ: HttpStatus.OK.")
     public void testAddComment_ReturnsStatusOk() {
         log.info("Start test: создать комментарий.");
-        setUp();
+
         LocalDateTime now = LocalDateTime.now();
 
         BookingInputDTO bookingInputDTO = BookingInputDTO.builder()
@@ -410,7 +402,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: обновить предмет, обновляется только название, возвращается ответ: HttpStatus.OK.")
     public void testUpdateItem_OnlyName_ReturnsStatusOk() {
         log.info("Start test: обновить предмет, обновляется только название.");
-        setUp();
 
         ItemInputDTO itemInputDTO = ItemInputDTO.builder()
                 .id(itemId1)
@@ -518,7 +509,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: создать предмет, по ID запроса на предмет, возвращается ответ: HttpStatus.OK.")
     public void testCreate_WithItemRequestId_ReturnsStatusOk() {
         log.info("Start test: создать предмет, по ID запроса на предмет.");
-        setUp();
 
         ItemRequest itemRequest = ItemRequest.builder().description("Нужен диван").requester(user2).build();
         itemRequestDAO.save(itemRequest);
@@ -557,7 +547,7 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: обновить предмет, обновляется только ID звпроса на предмет, возвращается ответ: HttpStatus.OK.")
     public void testUpdateItem_OnlyItemRequestId_ReturnsStatusOk() {
         log.info("Start test: обновить предмет, обновляется только ID звпроса на предмет.");
-        setUp();
+
         ItemInputDTO itemInputDTO = ItemInputDTO.builder()
                 .id(itemId1)
                 .requestId(1L)
@@ -586,7 +576,7 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: обновить предмет, обновляется только название предмета созданного по запросу, возвращается ответ: HttpStatus.OK.")
     public void testUpdateItem_OnlyNameAndHaveItemRequestId_ReturnsStatusOk() {
         log.info("Start test: обновить предмет, обновляется только название предмета созданного по запросу.");
-        setUp();
+
         ItemInputDTO itemInputDTO = ItemInputDTO.builder()
                 .id(itemId1)
                 .name("Дрель!!!")
@@ -616,9 +606,7 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: обновить предмет, обновляет не создатель предмета, передается не правильный ID запроса на предмет, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testUpdateItem_WithNotOwner_ReturnsStatusNotFound() {
         log.info("Start test: обновить предмет, обновляет не создатель предмета, передается не правильный ID запроса на предмет.");
-        setUp();
-
-        mvc.perform(patch("/items/{itemId}", itemId1)
+                mvc.perform(patch("/items/{itemId}", itemId1)
                         .header(REQUEST_HEADER_USER_ID, userId2)
                         .content(mapper.writeValueAsString(inputDTO))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -637,7 +625,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: создать комментарий, по несуществующему ID предмета, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testAddComment_WithInvalidItemId_ReturnsStatusNotFound() {
         log.info("Start test: создать комментарий, по несуществующему ID предмета.");
-        setUp();
 
         CommentInputDTO commentInputDTO = CommentInputDTO.builder()
                 .text("Add comment from user1")
