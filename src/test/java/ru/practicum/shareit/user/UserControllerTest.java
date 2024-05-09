@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,7 @@ class UserControllerTest {
     private final Long invalidId = 999L;
     private final NotFoundException notFoundException = NotFoundException.builder().message("Exception").build();
 
+    @BeforeEach
     void setUp() {
 
         userInputDTO = UserInputDTO.builder()
@@ -72,7 +74,7 @@ class UserControllerTest {
     void testCreateUser_WithEmptyName_ResultStatusBadRequest() {
 
         log.info("Start test: создания пользователя, передается пустое поле name.");
-        setUp();
+
         userInputDTO = userInputDTO.toBuilder()
                 .name(null)
                 .build();
@@ -98,7 +100,7 @@ class UserControllerTest {
     void testCreateUser_WithEmptyEmail_ResultStatusBadRequest() {
 
         log.info("Start test: создать пользователя, передается пустое поле email.");
-        setUp();
+
         userInputDTO = userInputDTO.toBuilder()
                 .email(null)
                 .build();
@@ -124,7 +126,7 @@ class UserControllerTest {
     void testCreateUser_WithInvalidEmail_ResultStatusBadRequest() {
 
         log.info("Start test: создать пользователя, передается невалидное поле email.");
-        setUp();
+
         userInputDTO = userInputDTO.toBuilder()
                 .email("ruru@yandex")
                 .build();
@@ -149,7 +151,6 @@ class UserControllerTest {
     void testCreateUser_ResultStatusCreated() {
 
         log.info("Start test: создать пользователя.");
-        setUp();
 
         when(service.create(any(UserInputDTO.class))).thenReturn(userOutputDTO);
 
@@ -172,7 +173,6 @@ class UserControllerTest {
     void testGetUser_ById_ResultStatusOk() {
 
         log.info("Start test: получить пользователя по ID.");
-        setUp();
 
         when(service.getById(anyLong())).thenReturn(userOutputDTO);
 
@@ -191,7 +191,6 @@ class UserControllerTest {
     void testGetUser_ByInvalidId_ResultStatusNotFound() {
 
         log.info("Start test: получить пользователя по неверному ID.");
-        setUp();
 
         when(service.getById(anyLong())).thenThrow(notFoundException);
 
@@ -243,7 +242,6 @@ class UserControllerTest {
     void testDeleteUser_ResultStatusNoContent() {
 
         log.info("Start test: удалить пользователя по ID.");
-        setUp();
 
         mvc.perform(delete("/users/{userId}", userId))
                 .andExpect(status().isNoContent());

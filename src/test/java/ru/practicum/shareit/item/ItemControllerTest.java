@@ -3,10 +3,7 @@ package ru.practicum.shareit.item;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -50,6 +49,7 @@ class ItemControllerTest {
     private final Long itemId1 = 1L;
     private final Long userId1 = 1L;
 
+    @BeforeEach
     void setUp() {
 
         inputDTO = ItemInputDTO.builder()
@@ -81,7 +81,7 @@ class ItemControllerTest {
     void testCreateItem_WithEmptyName_ResultException() {
 
         log.info("Start test: создания предмет, передается пустое поле name.");
-        setUp();
+
         inputDTO = inputDTO.toBuilder()
                 .name(null)
                 .build();
@@ -95,7 +95,7 @@ class ItemControllerTest {
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         ConstraintViolationException.class));
 
-        verify(service, never()).create(userId1, inputDTO);
+        verify(service, never()).create(anyLong(), any(ItemInputDTO.class));
 
         log.info("End test: создать предмет, передается пустое поле name, " +
                 "возвращается ответ: HttpStatus.BAD_REQUEST.");

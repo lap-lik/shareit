@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,7 @@ class BookingControllerTest {
     private final LocalDateTime startTime = now.plusHours(1);
     private final LocalDateTime endTime = now.plusHours(2);
 
+    @BeforeEach
     void setUp() {
         setUpUser();
         setUpItem();
@@ -235,7 +237,6 @@ class BookingControllerTest {
     void testCreateBooking_WithStartTimeEmpty_ResultStatusBadRequest() {
 
         log.info("Start test: создать резервирование предмета, передается пустое поле start.");
-        setUp();
 
         bookingInputDTO = bookingInputDTO.toBuilder()
                 .start(null)
@@ -264,7 +265,6 @@ class BookingControllerTest {
     void testCreateBooking_WithStartTimeInvalid_ResultStatusBadRequest() {
 
         log.info("Start test: создать резервирование предмета, передается неверное поле start.");
-        setUp();
 
         bookingInputDTO = bookingInputDTO.toBuilder()
                 .start(LocalDateTime.now().minusDays(1))
@@ -292,7 +292,6 @@ class BookingControllerTest {
     void testCreateBooking_ResultStatusCreated() {
 
         log.info("Start test: создать резервирование предмета.");
-        setUp();
 
         when(service.create(any(BookingInputDTO.class))).thenReturn(bookingOutputDTO);
 
@@ -316,7 +315,6 @@ class BookingControllerTest {
     void testUpdateBooking_ResultStatusOk() {
 
         log.info("Start test: обновить резервирование предмета.");
-        setUp();
 
         bookingOutputDTO = bookingOutputDTO.toBuilder()
                 .status(Status.APPROVED)
@@ -333,7 +331,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(bookingOutputDTO)));
 
-        verify(service, times(1)).approveBooking(anyLong(), anyLong(), anyBoolean());
+        verify(service, times(1)).approveBooking(userId, bookingId, true);
 
         log.info("End test: обновить резервирование предмета, возвращается ответ: HttpStatus.OK.");
     }
@@ -344,7 +342,6 @@ class BookingControllerTest {
     void testGetBooking_ResultStatusOk() {
 
         log.info("Start test: получить резервирование предмета.");
-        setUp();
 
         bookingOutputDTO = bookingOutputDTO.toBuilder()
                 .status(Status.APPROVED)
@@ -360,7 +357,7 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(bookingOutputDTO)));
 
-        verify(service, times(1)).getById(anyLong(), anyLong());
+        verify(service, times(1)).getById(userId, bookingId);
 
         log.info("End test: получить резервирование предмета, возвращается ответ: HttpStatus.OK.");
     }

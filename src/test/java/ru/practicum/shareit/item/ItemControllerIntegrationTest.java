@@ -440,7 +440,7 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: обновить предмет, обновляется только описание, возвращается ответ: HttpStatus.OK.")
     public void testUpdateItem_OnlyDescription_ReturnsStatusOk() {
         log.info("Start test: обновить предмет, обновляется только описание.");
-        setUp();
+
         ItemInputDTO itemInputDTO = ItemInputDTO.builder()
                 .id(itemId1)
                 .description("Простая дрель++")
@@ -469,7 +469,7 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: обновить предмет, обновляется только связь с запросом на предмет, передается не правильный ID запроса на предмет, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testUpdateItem_InvalidRequestId_ReturnsStatusNotFound() {
         log.info("Start test: обновить предмет, обновляется только связь с запросом на предмет, передается не правильный ID запроса на предмет.");
-        setUp();
+
         ItemInputDTO itemInputDTO = ItemInputDTO.builder()
                 .id(itemId1)
                 .requestId(invalidId)
@@ -494,7 +494,6 @@ class ItemControllerIntegrationTest {
     @DisplayName("Integration Test: создать комментарий, по несуществующему бронированию предмета, возвращается ответ: HttpStatus.BAD_REQUEST.")
     public void testAddComment_WithNotConfirmBooking_ReturnsStatusBadRequest() {
         log.info("Start test: создать комментарий, по несуществующему бронированию предмета.");
-        setUp();
 
         CommentInputDTO commentInputDTO = CommentInputDTO.builder()
                 .text("Add comment from user1")
@@ -616,7 +615,7 @@ class ItemControllerIntegrationTest {
     @SneakyThrows
     @DisplayName("Integration Test: обновить предмет, обновляет не создатель предмета, передается не правильный ID запроса на предмет, возвращается ответ: HttpStatus.NOT_FOUND.")
     public void testUpdateItem_WithNotOwner_ReturnsStatusNotFound() {
-        log.info("Start test: обновить предмет, обновляется только связь с запросом на предмет, передается не правильный ID запроса на предмет.");
+        log.info("Start test: обновить предмет, обновляет не создатель предмета, передается не правильный ID запроса на предмет.");
         setUp();
 
         mvc.perform(patch("/items/{itemId}", itemId1)
@@ -629,15 +628,15 @@ class ItemControllerIntegrationTest {
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         NotFoundException.class));
 
-        log.info("End test: обновить предмет, обновляется только связь с запросом на предмет, передается не правильный ID запроса на предмет, обновляется только описание, возвращается ответ: HttpStatus.NOT_FOUND.");
+        log.info("End test: обновить предмет, обновляет не создатель предмета, передается не правильный ID запроса на предмет, возвращается ответ: HttpStatus.NOT_FOUND.");
     }
 
     @Test
     @Order(20)
     @SneakyThrows
-    @DisplayName("Integration Test: создать комментарий, по несуществующему бронированию предмета, возвращается ответ: HttpStatus.NOT_FOUND.")
-    public void testAddComment_WithInvalidId_ReturnsStatusNotFound() {
-        log.info("Start test: создать комментарий, по несуществующему бронированию предмета.");
+    @DisplayName("Integration Test: создать комментарий, по несуществующему ID предмета, возвращается ответ: HttpStatus.NOT_FOUND.")
+    public void testAddComment_WithInvalidItemId_ReturnsStatusNotFound() {
+        log.info("Start test: создать комментарий, по несуществующему ID предмета.");
         setUp();
 
         CommentInputDTO commentInputDTO = CommentInputDTO.builder()
@@ -654,7 +653,7 @@ class ItemControllerIntegrationTest {
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         NotFoundException.class));
 
-        log.info("End test: создать комментарий, по несуществующему бронированию предмета, возвращается ответ: HttpStatus.NOT_FOUND.");
+        log.info("End test: создать комментарий, по несуществующему ID предмета, возвращается ответ: HttpStatus.NOT_FOUND.");
     }
 
     @Test

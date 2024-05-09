@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,7 @@ class ItemRequestControllerTest {
     private final LocalDateTime now = LocalDateTime.now();
     private final NotFoundException notFoundException = NotFoundException.builder().message("Exception").build();
 
+    @BeforeEach
     void setUp() {
 
         itemRequestInputDTO = ItemRequestInputDTO.builder()
@@ -77,7 +79,6 @@ class ItemRequestControllerTest {
     void testCreateItem_ResulStatusCreated() {
 
         log.info("Start test: создать запрос на предмет.");
-        setUp();
 
         when(service.create(anyLong(), any(ItemRequestInputDTO.class))).thenReturn(itemRequestOutputDTO);
 
@@ -101,7 +102,7 @@ class ItemRequestControllerTest {
     void testCreateItem_WithEmptyDescription_ResulStatusBadRequest() {
 
         log.info("Start test: создать запрос на предмет, передается пустое поле description.");
-        setUp();
+
         itemRequestInputDTO = itemRequestInputDTO.toBuilder()
                 .description(null)
                 .build();
@@ -127,7 +128,6 @@ class ItemRequestControllerTest {
     void testGetItemRequest_ById_ResultStatusOk() {
 
         log.info("Start test: получить запрос на предмет по ID.");
-        setUp();
 
         when(service.getByRequestId(anyLong(), anyLong())).thenReturn(itemRequestOutputDTO);
 
@@ -138,7 +138,7 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(itemRequestOutputDTO)));
 
-        verify(service, times(1)).getByRequestId(anyLong(), anyLong());
+        verify(service, times(1)).getByRequestId(userId, requestId);
 
         log.info("End test: получить запрос на предмет по ID, возвращается ответ: HttpStatus.OK.");
     }
@@ -149,7 +149,6 @@ class ItemRequestControllerTest {
     void testGetItemRequest_ByInvalidId_ResultStatusNotFound() {
 
         log.info("Start test: получить запрос на предмет по неверному ID.");
-        setUp();
 
         when(service.getByRequestId(anyLong(), anyLong())).thenThrow(notFoundException);
 
@@ -161,7 +160,7 @@ class ItemRequestControllerTest {
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         NotFoundException.class));
 
-        verify(service, times(1)).getByRequestId(anyLong(), anyLong());
+        verify(service, times(1)).getByRequestId(userId, invalidId);
 
         log.info("End test: получить запрос на предмет по неверному ID, возвращается ответ: HttpStatus.NOT_FOUND.");
     }
@@ -172,7 +171,6 @@ class ItemRequestControllerTest {
     void testGetItemRequest_ByInvalidUserId_ResultStatusNotFound() {
 
         log.info("Start test: получить запрос на предмет по неверному ID пользователя.");
-        setUp();
 
         when(service.getByRequestId(anyLong(), anyLong())).thenThrow(notFoundException);
 
@@ -182,7 +180,7 @@ class ItemRequestControllerTest {
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
                         NotFoundException.class));
 
-        verify(service, times(1)).getByRequestId(anyLong(), anyLong());
+        verify(service, times(1)).getByRequestId(invalidId, requestId);
 
         log.info("End test: получить запрос на предмет по неверному ID пользователя, возвращается ответ: HttpStatus.NOT_FOUND.");
     }
@@ -193,7 +191,6 @@ class ItemRequestControllerTest {
     void testGetAllItemRequest_ResultStatusOk() {
 
         log.info("Start test: получить всех пользователей.");
-
 
         ItemRequestOutputDTO itemRequestOutputDTO1 = ItemRequestOutputDTO.builder()
                 .id(1L)
@@ -214,13 +211,13 @@ class ItemRequestControllerTest {
         when(service.getAll(anyLong(), anyInt(), anyInt())).thenReturn(itemRequests);
 
         mvc.perform(get("/requests/all")
-                        .header(REQUEST_HEADER_USER_ID, invalidId)
+                        .header(REQUEST_HEADER_USER_ID, userId)
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(itemRequests)));
 
-        verify(service, times(1)).getAll(anyLong(), anyInt(), anyInt());
+        verify(service, times(1)).getAll(userId, from, size);
 
         log.info("End test: получить все запросы на предметы, возвращается ответ: HttpStatus.OK.");
     }
@@ -234,7 +231,7 @@ class ItemRequestControllerTest {
         log.info("Start test: получить все запросы на предметы, передается отрицательное количество объектов для вывода на странице.");
 
         mvc.perform(get("/requests/all")
-                        .header(REQUEST_HEADER_USER_ID, invalidId)
+                        .header(REQUEST_HEADER_USER_ID, userId)
                         .param("from", String.valueOf(from))
                         .param("size", "-1"))
                 .andExpect(status().isBadRequest())
@@ -253,7 +250,6 @@ class ItemRequestControllerTest {
     void testGetAllByRequesterId_ResultStatusOk() {
 
         log.info("Start test: получить все запросы на предметы по ID создателя запросов.");
-
 
         ItemRequestOutputDTO itemRequestOutputDTO1 = ItemRequestOutputDTO.builder()
                 .id(1L)
@@ -274,11 +270,11 @@ class ItemRequestControllerTest {
         when(service.getAllByRequesterId(anyLong())).thenReturn(itemRequests);
 
         mvc.perform(get("/requests")
-                        .header(REQUEST_HEADER_USER_ID, invalidId))
+                        .header(REQUEST_HEADER_USER_ID, userId))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(itemRequests)));
 
-        verify(service, times(1)).getAllByRequesterId(anyLong());
+        verify(service, times(1)).getAllByRequesterId(userId);
 
         log.info("End test: получить все запросы на предметы по ID создателя запросов, возвращается ответ: HttpStatus.OK.");
     }

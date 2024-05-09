@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.service;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -60,6 +62,7 @@ class ItemRequestServiceImplTest {
     private final int size = 2;
     private final LocalDateTime now = LocalDateTime.now();
 
+    @BeforeEach
     void setUp() {
 
         itemRequest = ItemRequest.builder()
@@ -93,12 +96,11 @@ class ItemRequestServiceImplTest {
     void testCreateItemRequest_ReturnItemRequestOutputDTO() {
 
         log.info("Start test: создать запрос на предмет.");
-        setUp();
 
-        when(userDAO.existsById(userId)).thenReturn(true);
-        when(mapper.inputDTOToEntity(itemRequestInputDTO)).thenReturn(itemRequest);
-        when(itemRequestDAO.save(itemRequest)).thenReturn(itemRequest);
-        when(mapper.toOutputDTO(itemRequest)).thenReturn(itemRequestOutputDTO);
+        when(userDAO.existsById(anyLong())).thenReturn(true);
+        when(mapper.inputDTOToEntity(any(ItemRequestInputDTO.class))).thenReturn(itemRequest);
+        when(itemRequestDAO.save(any(ItemRequest.class))).thenReturn(itemRequest);
+        when(mapper.toOutputDTO(any(ItemRequest.class))).thenReturn(itemRequestOutputDTO);
 
         assertEquals(itemRequestOutputDTO, itemRequestService.create(userId, itemRequestInputDTO));
 
@@ -111,9 +113,8 @@ class ItemRequestServiceImplTest {
     void testCreateItemRequest_WithInvalidUserId_ReturnNotFoundException() {
 
         log.info("Start test: создать запрос на предмет, передается не верный ID пользователя.");
-        setUp();
 
-        when(userDAO.existsById(invalidId)).thenReturn(false);
+        when(userDAO.existsById(anyLong())).thenReturn(false);
 
         assertThrows(NotFoundException.class, () -> itemRequestService.create(invalidId, itemRequestInputDTO));
 
@@ -126,13 +127,12 @@ class ItemRequestServiceImplTest {
     void testGetItemRequest_ByRequestId_ReturnItemRequestOutputDTO() {
 
         log.info("Start test: получить запрос на предмет по ID.");
-        setUp();
 
-        when(userDAO.existsById(userId)).thenReturn(true);
-        when(itemRequestDAO.findById(itemRequestId)).thenReturn(Optional.of(itemRequest));
-        when(mapper.toOutputDTO(itemRequest)).thenReturn(itemRequestOutputDTO);
-        when(itemDAO.findAllByRequest_Id(itemRequestId)).thenReturn(List.of());
-        when(itemMapper.toShortOutputDTOs(List.of())).thenReturn(List.of());
+        when(userDAO.existsById(anyLong())).thenReturn(true);
+        when(itemRequestDAO.findById(anyLong())).thenReturn(Optional.of(itemRequest));
+        when(mapper.toOutputDTO(any(ItemRequest.class))).thenReturn(itemRequestOutputDTO);
+        when(itemDAO.findAllByRequest_Id(anyLong())).thenReturn(List.of());
+        when(itemMapper.toShortOutputDTOs(anyList())).thenReturn(List.of());
 
         assertEquals(itemRequestOutputDTO, itemRequestService.getByRequestId(userId, itemRequestId));
 
@@ -146,8 +146,8 @@ class ItemRequestServiceImplTest {
 
         log.info("Start test: получить запрос на предмет по неверному ID.");
 
-        when(userDAO.existsById(userId)).thenReturn(true);
-        when(itemRequestDAO.findById(invalidId)).thenThrow(NotFoundException.class);
+        when(userDAO.existsById(anyLong())).thenReturn(true);
+        when(itemRequestDAO.findById(anyLong())).thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class, () -> itemRequestService.getByRequestId(userId, invalidId));
 
@@ -160,13 +160,13 @@ class ItemRequestServiceImplTest {
     void testGetAllItemRequest_ByRequesterId_ReturnListOfItemRequestOutputDTO() {
 
         log.info("Start test: получить все запросы на предметы по ID создателя запросов.");
-        setUp();
+
         List<ItemRequest> itemRequests = List.of(itemRequest);
         List<ItemRequestOutputDTO> itemRequestOutputDTOS = List.of(itemRequestOutputDTO);
 
-        when(userDAO.existsById(userId)).thenReturn(true);
-        when(itemRequestDAO.findAllByRequester_Id(userId)).thenReturn(itemRequests);
-        when(mapper.toOutputDTOs(itemRequests)).thenReturn(itemRequestOutputDTOS);
+        when(userDAO.existsById(anyLong())).thenReturn(true);
+        when(itemRequestDAO.findAllByRequester_Id(anyLong())).thenReturn(itemRequests);
+        when(mapper.toOutputDTOs(anyList())).thenReturn(itemRequestOutputDTOS);
 
         assertEquals(itemRequestOutputDTOS, itemRequestService.getAllByRequesterId(userId));
 
@@ -179,13 +179,13 @@ class ItemRequestServiceImplTest {
     void testGetAllItemRequestFromOtherUsers_ByPageParam_ReturnListOfItemRequestOutputDTO() {
 
         log.info("Start test: получить все запросы на предметы других пользователей.");
-        setUp();
+
         List<ItemRequest> itemRequests = List.of(itemRequest);
         List<ItemRequestOutputDTO> itemRequestOutputDTOS = List.of(itemRequestOutputDTO);
 
-        when(userDAO.existsById(userId)).thenReturn(true);
-        when(itemRequestDAO.findAllFromOtherUsers(userId, from, size)).thenReturn(itemRequests);
-        when(mapper.toOutputDTOs(itemRequests)).thenReturn(itemRequestOutputDTOS);
+        when(userDAO.existsById(anyLong())).thenReturn(true);
+        when(itemRequestDAO.findAllFromOtherUsers(anyLong(), anyInt(), anyInt())).thenReturn(itemRequests);
+        when(mapper.toOutputDTOs(anyList())).thenReturn(itemRequestOutputDTOS);
 
         assertEquals(itemRequestOutputDTOS, itemRequestService.getAll(userId, from, size));
 
