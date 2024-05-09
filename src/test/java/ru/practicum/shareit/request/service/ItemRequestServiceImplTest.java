@@ -59,7 +59,6 @@ class ItemRequestServiceImplTest {
     private final int from = 0;
     private final int size = 2;
     private final LocalDateTime now = LocalDateTime.now();
-//    LocalDateTime customDateTime = LocalDateTime.of(2022, 10, 31, 12, 30);
 
     void setUp() {
 

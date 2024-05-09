@@ -80,11 +80,9 @@ class BookingControllerTest {
     private final Long commentId = 1L;
     private final Long bookingId = 1L;
     private final Long itemRequestId = 1L;
-    private final Long invalidId = 999L;
-    private final int from = 0;
-    private final int size = 2;
-    private final LocalDateTime startTime = LocalDateTime.now().plusHours(1);
-    private final LocalDateTime endTime = LocalDateTime.now().plusHours(2);
+    private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime startTime = now.plusHours(1);
+    private final LocalDateTime endTime = now.plusHours(2);
 
     void setUp() {
         setUpUser();

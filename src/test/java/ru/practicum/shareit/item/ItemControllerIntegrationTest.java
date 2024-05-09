@@ -205,14 +205,14 @@ class ItemControllerIntegrationTest {
         setUp();
 
         inputDTO = inputDTO.toBuilder()
-                .name("Клей Момент")
-                .description("Тюбик суперклея марки Момент")
+                .name("Телевизор")
+                .description("Телевизор 40 дюймов.")
                 .available(true)
                 .build();
         shortOutputDTO = shortOutputDTO.toBuilder()
                 .id(3L)
-                .name("Клей Момент")
-                .description("Тюбик суперклея марки Момент")
+                .name("Телевизор")
+                .description("Телевизор 40 дюймов.")
                 .available(true)
                 .build();
 

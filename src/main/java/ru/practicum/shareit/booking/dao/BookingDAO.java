@@ -34,7 +34,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      *
      * @param bookerId The ID of the booker.
      * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param size     The pagination information for the query.
      * @return A Page of bookings made by the specified booker sorted by start time in descending order.
      */
     @Query(nativeQuery = true,
@@ -70,7 +70,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * @param bookerId The ID of the booker.
      * @param now      The current local date time.
      * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param size     The pagination information for the query.
      * @return A Page of bookings made by the specified booker where the start time is before the current time
      * and the end time is after the current time, sorted by start time in descending order.
      */
@@ -88,7 +88,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * @param bookerId The ID of the booker.
      * @param now      The current local date time.
      * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param size     The pagination information for the query.
      * @return A Page of bookings made by the specified booker where the end time is before the current time, sorted by start time in descending order.
      */
     @Query(nativeQuery = true,
@@ -106,7 +106,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * @param bookerId The ID of the booker.
      * @param now      The current local date time.
      * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param size     The pagination information for the query.
      * @return A Page of bookings made by the specified booker where the start time is after the specified time,
      * sorted by start time in descending order.
      */
@@ -124,7 +124,7 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * @param bookerId The ID of the booker.
      * @param status   The status of the bookings to retrieve.
      * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param size     The pagination information for the query.
      * @return A Page of bookings made by the specified booker with the specified status, sorted by start time in descending order.
      */
     @Query(nativeQuery = true,
@@ -138,9 +138,9 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
     /**
      * Find all bookings for items owned by a specific user, ordered by start time in descending order.
      *
-     * @param ownerId  The ID of the owner of the items.
-     * @param pageable The pagination information for the query.
-     * @param from     Index of object in DB.
+     * @param ownerId The ID of the owner of the items.
+     * @param from    Index of object in DB.
+     * @param size    The pagination information for the query.
      * @return A Page of bookings for items owned by the specified user, sorted by start time in descending order.
      */
     @Query(nativeQuery = true,
@@ -155,10 +155,10 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * Find all bookings for items owned by a specific user where the start time is before the specified time
      * and the end time is after the specified time, ordered by start time in descending order.
      *
-     * @param ownerId  The ID of the owner of the items.
-     * @param now      The current local date time.
-     * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param ownerId The ID of the owner of the items.
+     * @param now     The current local date time.
+     * @param from    Index of object in DB.
+     * @param size    The pagination information for the query.
      * @return A Page of bookings for items owned by the specified user where the start time is before the specified time
      * and the end time is after the specified time, sorted by start time in descending order.
      */
@@ -174,10 +174,10 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * Find all bookings for items owned by a specific user where the end time is before the specified time,
      * ordered by start time in descending order.
      *
-     * @param ownerId  The ID of the owner of the items.
-     * @param now      The current local date time.
-     * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param ownerId The ID of the owner of the items.
+     * @param now     The current local date time.
+     * @param from    Index of object in DB.
+     * @param size    The pagination information for the query.
      * @return A Page of bookings for items owned by the specified user where the end time is before the specified time,
      * sorted by start time in descending order.
      */
@@ -193,10 +193,10 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * Find all bookings for items owned by a specific user where the start time is after the specified time,
      * ordered by start time in descending order.
      *
-     * @param ownerId  The ID of the owner of the items.
-     * @param now      The current local date time.
-     * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param ownerId The ID of the owner of the items.
+     * @param now     The current local date time.
+     * @param from    Index of object in DB.
+     * @param size    The pagination information for the query.
      * @return A Page of bookings for items owned by the specified user where the start time is after the specified time,
      * sorted by start time in descending order.
      */
@@ -212,10 +212,10 @@ public interface BookingDAO extends JpaRepository<Booking, Long> {
      * Find all bookings for items owned by a specific user with the specified status,
      * ordered by start time in descending order.
      *
-     * @param ownerId  The ID of the owner of the items.
-     * @param status   The status of the bookings to retrieve.
-     * @param from     Index of object in DB.
-     * @param pageable The pagination information for the query.
+     * @param ownerId The ID of the owner of the items.
+     * @param status  The status of the bookings to retrieve.
+     * @param from    Index of object in DB.
+     * @param size    The pagination information for the query.
      * @return A Page of bookings for items owned by the specified user with the specified status,
      * sorted by start time in descending order.
      */

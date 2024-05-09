@@ -50,8 +50,6 @@ class ItemControllerTest {
     private ItemShortOutputDTO shortOutputDTO;
     private final Long itemId1 = 1L;
     private final Long userId1 = 1L;
-    private final Long invalidItemId = 999L;
-    private final NotFoundException notFoundException = NotFoundException.builder().message("Exception").build();
 
     void setUp() {
 
