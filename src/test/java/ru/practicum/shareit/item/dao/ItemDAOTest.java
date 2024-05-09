@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.model.Item;
@@ -18,6 +19,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @Slf4j
 @DataJpaTest
+@Profile(value = "test")
 @Transactional(readOnly = true)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class ItemDAOTest {
@@ -31,7 +33,7 @@ public class ItemDAOTest {
     private User user2;
     private Item item1FromUser1;
     private Item item2FromUser1;
-    private Item item1FromUser2;
+    private Item item3FromUser2;
 
     @BeforeEach
     @Transactional
@@ -41,24 +43,24 @@ public class ItemDAOTest {
         userDAO.save(user1);
         userDAO.save(user2);
 
-        item1FromUser1 = Item.builder().name("Дрель").description("Простая дрель").owner(user1).build();
-        item2FromUser1 = Item.builder().name("Отвертка").description("Аккумуляторная отвертка").owner(user1).build();
-        item1FromUser2 = Item.builder().name("Набор инструментов").description("В наборе молоток, отвертки, шурупы.").owner(user2).build();
+        item1FromUser1 = Item.builder().name("Дрель").description("Простая дрель").owner(user1).available(true).build();
+        item2FromUser1 = Item.builder().name("Отвертка").description("Аккумуляторная отвертка").owner(user1).available(true).build();
+        item3FromUser2 = Item.builder().name("Набор инструментов").description("В наборе молоток, отвертки, шурупы.").owner(user2).available(true).build();
         itemDAO.save(item1FromUser1);
         itemDAO.save(item2FromUser1);
-        itemDAO.save(item1FromUser2);
+        itemDAO.save(item3FromUser2);
     }
 
     @Test
     @DisplayName("DataJpaTest: поиск предметов по ID создателя, возвращается корректное количество предметов.")
-    public void testFindAllByOwnerId_OrderById_ReturnCorrectItemsReturned() {
+    public void testFindAllByOwnerId_ByOwnerId_ReturnCorrectItemsReturned() {
         log.info("Start test: поиск предметов по ID создателя.");
 
-        List<Item> itemsByUser1 = itemDAO.findAllByOwnerIdOrderById(user1.getId(), 0, 10);
+        List<Item> itemsByUser1 = itemDAO.findAllByOwnerIdOrderById(user1.getId(), 0, 20);
         assertThat(itemsByUser1).containsExactly(item1FromUser1, item2FromUser1);
 
-        List<Item> itemsByUser2 = itemDAO.findAllByOwnerIdOrderById(user2.getId(), 0, 10);
-        assertThat(itemsByUser2).containsExactly(item1FromUser2);
+        List<Item> itemsByUser2 = itemDAO.findAllByOwnerIdOrderById(user2.getId(), 0, 20);
+        assertThat(itemsByUser2).containsExactly(item3FromUser2);
 
         log.info("End test: поиск предметов по ID создателя, возвращается корректное количество предметов.");
     }
@@ -66,7 +68,7 @@ public class ItemDAOTest {
     @Test
     @DisplayName("DataJpaTest: поиск предметов по ID создателя, с использованием параметров пагинации, " +
             "возвращается корректное количество предметов.")
-    public void testFindAllByOwnerId_OrderByIdAndOffset_ReturnCorrectItemsReturned() {
+    public void testFindAllByOwnerId_ByOwnerIdAndOffset_ReturnCorrectItemsReturned() {
         log.info("Start test: поиск предметов по ID создателя, с использованием параметров пагинации.");
 
         List<Item> itemsByUser1WithOffset1 = itemDAO.findAllByOwnerIdOrderById(user1.getId(), 1, 2);
@@ -81,14 +83,14 @@ public class ItemDAOTest {
 
     @Test
     @DisplayName("DataJpaTest: поиск предметов по части названия или описания, возвращается корректное количество предметов.")
-    void testFindAllByContainsText_ReturnCorrectItemsReturned() {
+    void testFindAllBy_ByContainsText_ReturnCorrectItemsReturned() {
         log.info("Start test: поиск предметов по части названия или описания.");
 
-        List<Item> itemsByText1 = itemDAO.findAllByNameOrDescriptionContains("вер", 0, 2);
-        assertThat(itemsByText1).containsExactly(item2FromUser1, item1FromUser2);
+        List<Item> itemsByText1 = itemDAO.findAllByNameOrDescriptionContains("вер", 0, 20);
+        assertThat(itemsByText1).containsExactly(item2FromUser1, item3FromUser2);
 
-        List<Item> itemsByText2 = itemDAO.findAllByNameOrDescriptionContains("р", 0, 2);
-        assertThat(itemsByText2).containsExactly(item1FromUser1, item2FromUser1);
+        List<Item> itemsByText2 = itemDAO.findAllByNameOrDescriptionContains("р", 0, 20);
+        assertThat(itemsByText2).containsExactly(item1FromUser1, item2FromUser1, item3FromUser2);
 
         log.info("End test: поиск предметов по части названия или описания, возвращается корректное количество предметов.");
     }
@@ -96,14 +98,15 @@ public class ItemDAOTest {
     @Test
     @DisplayName("DataJpaTest: поиск предметов по части названия или описания с использованием параметров пагинации, " +
             "возвращается корректное количество предметов.")
-    void testFindAllByContainsText_OrderByIdAndOffset_ReturnCorrectItemsReturned() {
+    void testFindAll_ByContainsTextAndOffset_ReturnCorrectItemsReturned() {
         log.info("Start test: поиск предметов по части названия или описания с использованием параметров пагинации.");
 
-        List<Item> itemsByText1WithOffset1 = itemDAO.findAllByNameOrDescriptionContains("вер", 0, 2);
-        assertThat(itemsByText1WithOffset1).containsExactly(item2FromUser1, item1FromUser2);
+        List<Item> itemsByText1WithOffset1 = itemDAO.findAllByNameOrDescriptionContains("вер", 0, 1);
+        assertThat(itemsByText1WithOffset1).containsExactly(item2FromUser1);
 
         List<Item> itemsByText2WithOffset2 = itemDAO.findAllByNameOrDescriptionContains("р", 2, 2);
-        assertThat(itemsByText2WithOffset2).containsExactly(item1FromUser2);
+        assertThat(itemsByText2WithOffset2).containsExactly(item3FromUser2);
+
         log.info("End test: поиск предметов по части названия или описания с использованием параметров пагинации, " +
                 "возвращается корректное количество предметов.");
     }

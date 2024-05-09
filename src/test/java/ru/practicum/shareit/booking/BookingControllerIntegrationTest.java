@@ -81,7 +81,6 @@ public class BookingControllerIntegrationTest {
     private final Long itemId2 = 2L;
     private final Long itemId3 = 3L;
     private final Long bookingId1 = 1L;
-    private final Long bookingId2 = 2L;
     private final Long invalidId = 999L;
     private final int from = 0;
     private final int size = 2;

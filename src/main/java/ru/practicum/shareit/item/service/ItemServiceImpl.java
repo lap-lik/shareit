@@ -158,7 +158,6 @@ public class ItemServiceImpl implements ItemService {
                     .build();
         }
 
-        inputDTO.setCreated(now);
         inputDTO.setAuthorId(userId);
         inputDTO.setItemId(itemId);
 

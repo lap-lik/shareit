@@ -13,7 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemInputDTO;
 import ru.practicum.shareit.item.dto.ItemOutputDTO;
 import ru.practicum.shareit.item.dto.ItemShortOutputDTO;

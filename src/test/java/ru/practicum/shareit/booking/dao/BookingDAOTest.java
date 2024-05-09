@@ -81,6 +81,4 @@ class BookingDAOTest {
 
         log.info("End test: обновить у Booking поле status, возвращается ответ: Booking со статусом APPROVED.");
     }
-
-
 }

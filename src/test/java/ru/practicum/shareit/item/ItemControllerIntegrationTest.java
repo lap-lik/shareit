@@ -315,8 +315,8 @@ class ItemControllerIntegrationTest {
 
         ItemOutputDTO itemOutputDTO2 = ItemOutputDTO.builder()
                 .id(3L)
-                .name("Клей Момент")
-                .description("Тюбик суперклея марки Момент")
+                .name("Телевизор")
+                .description("Телевизор 40 дюймов.")
                 .available(true)
                 .build();
         List<ItemOutputDTO> items = Arrays.asList(itemOutputDTO1, itemOutputDTO2);
