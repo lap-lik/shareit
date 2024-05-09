@@ -58,14 +58,15 @@ class ItemRequestServiceImplTest {
     private final Long invalidId = 999L;
     private final int from = 0;
     private final int size = 2;
-    LocalDateTime customDateTime = LocalDateTime.of(2022, 10, 31, 12, 30);
+    private final LocalDateTime now = LocalDateTime.now();
+//    LocalDateTime customDateTime = LocalDateTime.of(2022, 10, 31, 12, 30);
 
     void setUp() {
 
         itemRequest = ItemRequest.builder()
                 .id(itemRequestId)
                 .description("Хотел бы воспользоваться щёткой для обуви")
-                .created(customDateTime)
+                .created(now)
                 .requester(User.builder()
                         .id(userId)
                         .name("RuRu")
@@ -81,7 +82,7 @@ class ItemRequestServiceImplTest {
         itemRequestOutputDTO = ItemRequestOutputDTO.builder()
                 .id(itemRequestId)
                 .description("Хотел бы воспользоваться щёткой для обуви")
-                .created(customDateTime)
+                .created(now)
                 .requesterId(userId)
                 .items(new ArrayList<>())
                 .build();
