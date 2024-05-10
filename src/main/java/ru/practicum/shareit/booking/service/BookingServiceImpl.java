@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingInputDTO;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingOutputDTO;
 import ru.practicum.shareit.booking.model.State;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnsupportedException;
 import ru.practicum.shareit.exception.ValidException;
@@ -20,6 +21,7 @@ import ru.practicum.shareit.user.dto.UserOutputDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import static ru.practicum.shareit.booking.model.Status.*;
 
@@ -79,18 +81,9 @@ public class BookingServiceImpl implements BookingService {
                         .message(String.format("The booking with the ID - `%d` was not found.", bookingId))
                         .build()));
         Long itemId = outputDto.getItem().getId();
+        Status bookingStatus = outputDto.getStatus();
 
-        if (outputDto.getStatus() == APPROVED) {
-            throw ValidException.builder()
-                    .message(String.format("The item with the ID - `%d` has already been booked.", itemId))
-                    .build();
-        }
-
-        if (!itemDAO.existsItemByIdAndOwner_Id(itemId, ownerId)) {
-            throw NotFoundException.builder()
-                    .message(String.format("The item with the ID - `%d` does not belong to the user with the ID - `%d`.", itemId, ownerId))
-                    .build();
-        }
+        validateBooking(ownerId, itemId, bookingStatus);
 
         if (approved) {
             bookingDAO.approvedBooking(bookingId, APPROVED.toString());
@@ -166,6 +159,20 @@ public class BookingServiceImpl implements BookingService {
                 throw UnsupportedException.builder()
                         .message(String.format("Unknown state: %s", queryState))
                         .build();
+        }
+    }
+
+    private void validateBooking(Long ownerId, Long itemId, Status bookingStatus) {
+        if (Objects.equals(bookingStatus, APPROVED)) {
+            throw ValidException.builder()
+                    .message(String.format("The item with the ID - `%d` has already been booked.", itemId))
+                    .build();
+        }
+
+        if (!itemDAO.existsItemByIdAndOwner_Id(itemId, ownerId)) {
+            throw NotFoundException.builder()
+                    .message(String.format("The item with the ID - `%d` does not belong to the user with the ID - `%d`.", itemId, ownerId))
+                    .build();
         }
     }
 

@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.booking.dao.BookingDAO;
 import ru.practicum.shareit.booking.dto.BookingInputDTO;
 import ru.practicum.shareit.booking.dto.BookingOutputDTO;
 import ru.practicum.shareit.booking.model.Booking;
@@ -50,9 +49,6 @@ public class BookingControllerIntegrationTest {
 
     @Autowired
     private UserDAO userDAO;
-
-    @Autowired
-    private BookingDAO bookingDAO;
 
     @Autowired
     private ItemDAO itemDAO;
@@ -123,7 +119,7 @@ public class BookingControllerIntegrationTest {
                 .name("Дрель")
                 .description("Простая дрель")
                 .available(true)
-                .owner(user1.toBuilder().id(1L).build())
+                .owner(user1)
                 .build();
         itemShortOutputDTO1 = ItemShortOutputDTO.builder()
                 .id(itemId1)
@@ -136,7 +132,7 @@ public class BookingControllerIntegrationTest {
                 .name("Отвертка")
                 .description("Крестовая отвертка")
                 .available(true)
-                .owner(user2.toBuilder().id(2L).build())
+                .owner(user2)
                 .build();
         itemShortOutputDTO2 = ItemShortOutputDTO.builder()
                 .id(itemId2)
@@ -149,15 +145,15 @@ public class BookingControllerIntegrationTest {
                 .name("Стул")
                 .description("Пластиковый стул")
                 .available(false)
-                .owner(user1.toBuilder().id(1L).build())
+                .owner(user1)
                 .build();
 
         booking = Booking.builder()
                 .start(startTime)
                 .end(endTime)
                 .status(Status.APPROVED)
-                .booker(user1.toBuilder().id(1L).build())
-                .item(item2.toBuilder().id(2L).build())
+                .booker(user1)
+                .item(item2)
                 .build();
 
         bookingInputDTO = BookingInputDTO.builder()
@@ -191,9 +187,7 @@ public class BookingControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("id", is(bookingOutputDTO.getId()), Long.class))
-                .andReturn();
-
+                .andExpect(jsonPath("id", is(bookingOutputDTO.getId()), Long.class));
 
         log.info("End test: создать резервирование предмета, возвращается ответ: HttpStatus.CREATED.");
     }
