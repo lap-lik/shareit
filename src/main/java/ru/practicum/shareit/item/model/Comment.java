@@ -1,18 +1,19 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comments")
 @Getter
-@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Table(name = "comments")
+@Builder(toBuilder = true)
 public class Comment {
 
     @Id
@@ -32,6 +33,7 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
 
+    @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime created;
 }

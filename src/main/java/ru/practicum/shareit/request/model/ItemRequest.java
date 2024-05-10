@@ -1,40 +1,35 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.request.model;
 
 import lombok.*;
-import ru.practicum.shareit.request.model.ItemRequest;
+import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "items")
+@Table(name = "requests")
 @Builder(toBuilder = true)
-public class Item {
+public class ItemRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
     private String description;
 
+    @CreationTimestamp
     @Column(nullable = false)
-    private boolean available;
+    private LocalDateTime created;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private User owner;
-
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id")
-    private ItemRequest request;
+    @JoinColumn(name = "requester_id")
+    private User requester;
 }
