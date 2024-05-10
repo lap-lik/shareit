@@ -43,17 +43,11 @@ public class BookingServiceImpl implements BookingService {
 
         UserOutputDTO booker = validateUserById(inputDTO.getBookerId());
         ItemShortOutputDTO item = validateItemById(inputDTO.getItemId());
-        Long bookerId = booker.getId();
-        Long itemId = item.getId();
 
-        if (itemDAO.existsItemByIdAndOwner_Id(itemId, bookerId)) {
-            throw NotFoundException.builder()
-                    .message(String.format("The user with an ID - `%d` is creating item with an ID - `%d` and cannot booking it.", itemId, bookerId))
-                    .build();
-        }
+        validateItemByOwner(item, booker);
+        validateDateTime(inputDTO);
 
         inputDTO.setStatus(WAITING);
-        validateDateTime(inputDTO);
 
         BookingOutputDTO outputDto = bookingMapper.toOutputDTO(bookingDAO.save(bookingMapper.inputDTOToEntity(inputDTO)));
         outputDto.setBooker(booker);
@@ -80,10 +74,8 @@ public class BookingServiceImpl implements BookingService {
                 bookingDAO.findById(bookingId).orElseThrow(() -> NotFoundException.builder()
                         .message(String.format("The booking with the ID - `%d` was not found.", bookingId))
                         .build()));
-        Long itemId = outputDto.getItem().getId();
-        Status bookingStatus = outputDto.getStatus();
 
-        validateBooking(ownerId, itemId, bookingStatus);
+        validateBookingToUpdate(ownerId, outputDto);
 
         if (approved) {
             bookingDAO.approvedBooking(bookingId, APPROVED.toString());
@@ -162,48 +154,6 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void validateBooking(Long ownerId, Long itemId, Status bookingStatus) {
-        if (Objects.equals(bookingStatus, APPROVED)) {
-            throw ValidException.builder()
-                    .message(String.format("The item with the ID - `%d` has already been booked.", itemId))
-                    .build();
-        }
-
-        if (!itemDAO.existsItemByIdAndOwner_Id(itemId, ownerId)) {
-            throw NotFoundException.builder()
-                    .message(String.format("The item with the ID - `%d` does not belong to the user with the ID - `%d`.", itemId, ownerId))
-                    .build();
-        }
-    }
-
-    private State validateState(String queryState) {
-
-        try {
-            return State.valueOf(queryState);
-        } catch (IllegalArgumentException e) {
-            throw UnsupportedException.builder()
-                    .message(String.format("Unknown state: %s", queryState))
-                    .build();
-        }
-    }
-
-    private void validateDateTime(BookingInputDTO inputDTO) {
-
-        LocalDateTime start = inputDTO.getStart();
-        LocalDateTime end = inputDTO.getEnd();
-
-        if (start.isAfter(end)) {
-            throw ValidException.builder()
-                    .message("The start of the booking cannot be later than the end of the booking.")
-                    .build();
-        }
-        if (start.equals(end)) {
-            throw ValidException.builder()
-                    .message("The beginning of the booking cannot be the end of the booking.")
-                    .build();
-        }
-    }
-
     private UserOutputDTO validateUserById(Long userId) {
 
         return userMapper.toOutputDTO(userDAO.findById(userId)
@@ -226,5 +176,63 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return shortOutputDto;
+    }
+
+    private void validateItemByOwner(ItemShortOutputDTO item, UserOutputDTO booker) {
+
+        Long bookerId = booker.getId();
+        Long itemId = item.getId();
+
+        if (itemDAO.existsItemByIdAndOwner_Id(itemId, bookerId)) {
+            throw NotFoundException.builder()
+                    .message(String.format("The user with an ID - `%d` is creating item with an ID - `%d` and cannot booking it.", itemId, bookerId))
+                    .build();
+        }
+    }
+
+    private void validateDateTime(BookingInputDTO inputDTO) {
+
+        LocalDateTime start = inputDTO.getStart();
+        LocalDateTime end = inputDTO.getEnd();
+
+        if (start.isAfter(end)) {
+            throw ValidException.builder()
+                    .message("The start of the booking cannot be later than the end of the booking.")
+                    .build();
+        }
+        if (start.equals(end)) {
+            throw ValidException.builder()
+                    .message("The beginning of the booking cannot be the end of the booking.")
+                    .build();
+        }
+    }
+
+    private void validateBookingToUpdate(Long ownerId, BookingOutputDTO outputDto) {
+
+        Long itemId = outputDto.getItem().getId();
+        Status bookingStatus = outputDto.getStatus();
+
+        if (Objects.equals(bookingStatus, APPROVED)) {
+            throw ValidException.builder()
+                    .message(String.format("The item with the ID - `%d` has already been booked.", itemId))
+                    .build();
+        }
+
+        if (!itemDAO.existsItemByIdAndOwner_Id(itemId, ownerId)) {
+            throw NotFoundException.builder()
+                    .message(String.format("The item with the ID - `%d` does not belong to the user with the ID - `%d`.", itemId, ownerId))
+                    .build();
+        }
+    }
+
+    private State validateState(String queryState) {
+
+        try {
+            return State.valueOf(queryState);
+        } catch (IllegalArgumentException e) {
+            throw UnsupportedException.builder()
+                    .message(String.format("Unknown state: %s", queryState))
+                    .build();
+        }
     }
 }
