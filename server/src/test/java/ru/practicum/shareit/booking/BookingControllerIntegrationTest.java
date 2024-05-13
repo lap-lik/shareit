@@ -11,12 +11,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.practicum.shareit.booking.dto.BookingInputDTO;
 import ru.practicum.shareit.booking.dto.BookingOutputDTO;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.UnsupportedException;
 import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.dao.ItemDAO;
 import ru.practicum.shareit.item.dto.ItemShortOutputDTO;
@@ -474,7 +474,7 @@ public class BookingControllerIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
-                        UnsupportedException.class));
+                        MethodArgumentTypeMismatchException.class));
 
         log.info("End test: получить резервирование предметов, с несуществующим статусом от создателя бронирований, возвращается ответ: HttpStatus.BAD_REQUEST.");
     }
@@ -638,7 +638,7 @@ public class BookingControllerIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertEquals(Objects.requireNonNull(result.getResolvedException()).getClass(),
-                        UnsupportedException.class));
+                        MethodArgumentTypeMismatchException.class));
 
         log.info("End test: получить резервирование предметов, с несуществующим статусом от создателя предметов, возвращается ответ: HttpStatus.BAD_REQUEST.");
     }
