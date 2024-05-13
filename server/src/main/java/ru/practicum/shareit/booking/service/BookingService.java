@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import ru.practicum.shareit.booking.dto.BookingInputDTO;
 import ru.practicum.shareit.booking.dto.BookingOutputDTO;
+import ru.practicum.shareit.booking.model.State;
 
 import java.util.List;
 
@@ -47,7 +48,7 @@ public interface BookingService {
      * @param size     The maximum number of bookings to retrieve (defaultValue = "20").
      * @return A list of BookingResponseDto objects representing the bookings.
      */
-    List<BookingOutputDTO> getAllBookingsAtBooker(Long bookerId, String state, Integer from, Integer size);
+    List<BookingOutputDTO> getAllBookingsAtBooker(Long bookerId, State state, Integer from, Integer size);
 
     /**
      * Retrieves all bookings associated with an owner user based on the owner's ID and state.
@@ -58,5 +59,5 @@ public interface BookingService {
      * @param size    The maximum number of bookings to retrieve (defaultValue = "20").
      * @return A list of BookingResponseDto objects representing the bookings.
      */
-    List<BookingOutputDTO> getAllBookingsAtOwner(Long ownerId, String state, Integer from, Integer size);
+    List<BookingOutputDTO> getAllBookingsAtOwner(Long ownerId, State state, Integer from, Integer size);
 }

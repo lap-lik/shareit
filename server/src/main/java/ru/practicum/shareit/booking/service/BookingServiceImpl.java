@@ -88,9 +88,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingOutputDTO> getAllBookingsAtBooker(Long bookerId, String queryState, Integer from, Integer size) {
+    public List<BookingOutputDTO> getAllBookingsAtBooker(Long bookerId, State state, Integer from, Integer size) {
 
-        State state = validateState(queryState);
         validateUserById(bookerId);
         LocalDateTime now = LocalDateTime.now();
 
@@ -115,15 +114,14 @@ public class BookingServiceImpl implements BookingService {
                         bookingDAO.findAllByBooker_IdAndStatus(bookerId, REJECTED.toString(), from, size));
             default:
                 throw UnsupportedException.builder()
-                        .message(String.format("Unknown state: %s", queryState))
+                        .message(String.format("Unknown state: %s", state))
                         .build();
         }
     }
 
     @Override
-    public List<BookingOutputDTO> getAllBookingsAtOwner(Long ownerId, String queryState, Integer from, Integer size) {
+    public List<BookingOutputDTO> getAllBookingsAtOwner(Long ownerId, State state, Integer from, Integer size) {
 
-        State state = validateState(queryState);
         validateUserById(ownerId);
         LocalDateTime now = LocalDateTime.now();
 
@@ -148,7 +146,7 @@ public class BookingServiceImpl implements BookingService {
                         bookingDAO.findAllByItem_Owner_IdAndStatus(ownerId, REJECTED.toString(), from, size));
             default:
                 throw UnsupportedException.builder()
-                        .message(String.format("Unknown state: %s", queryState))
+                        .message(String.format("Unknown state: %s", state))
                         .build();
         }
     }
@@ -220,17 +218,6 @@ public class BookingServiceImpl implements BookingService {
         if (!itemDAO.existsItemByIdAndOwner_Id(itemId, ownerId)) {
             throw NotFoundException.builder()
                     .message(String.format("The item with the ID - `%d` does not belong to the user with the ID - `%d`.", itemId, ownerId))
-                    .build();
-        }
-    }
-
-    private State validateState(String queryState) {
-
-        try {
-            return State.valueOf(queryState);
-        } catch (IllegalArgumentException e) {
-            throw UnsupportedException.builder()
-                    .message(String.format("Unknown state: %s", queryState))
                     .build();
         }
     }

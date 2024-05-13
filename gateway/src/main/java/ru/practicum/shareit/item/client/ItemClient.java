@@ -15,6 +15,12 @@ import ru.practicum.shareit.item.dto.ItemInputDTO;
 public class ItemClient extends BaseClient {
 
     private static final String API_PREFIX = "/items";
+    private static final String CREATE_ITEM_PATCH = "";
+    private static final String UPDATE_PATCH = "/%d";
+    private static final String GET_PATCH = "/%d";
+    private static final String GET_ALL_PATCH = "?from=%d&size=%d";
+    private static final String SEARCH_BY_TEXT_PATCH = "/search?text=%s&from=%d&size=%d";
+    private static final String CREATE_COMMON_PATCH = "/%d/comment";
 
     @Autowired
     public ItemClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -28,42 +34,40 @@ public class ItemClient extends BaseClient {
 
     public ResponseEntity<Object> createItem(long ownerId, ItemInputDTO inputDTO) {
 
-        String url = "";
-
-        return post(url, ownerId, inputDTO);
+        return post(CREATE_ITEM_PATCH, ownerId, inputDTO);
     }
 
     public ResponseEntity<Object> updateItem(long ownerId, long itemId, ItemInputDTO inputDTO) {
 
-        String url = "/" + itemId;
+        String url = String.format(UPDATE_PATCH, itemId);
 
         return patch(url, ownerId, inputDTO);
     }
 
     public ResponseEntity<Object> getItemById(long userId, long itemId) {
 
-        String url = "/" + itemId;
+        String url = String.format(GET_PATCH, itemId);
 
         return get(url, userId);
     }
 
     public ResponseEntity<Object> getAllItems(long ownerId, Integer from, Integer size) {
 
-        String url = String.format("?from=%d&size=%d", from, size);
+        String url = String.format(GET_ALL_PATCH, from, size);
 
         return get(url, ownerId);
     }
 
     public ResponseEntity<Object> searchItemsByText(String text, Integer from, Integer size) {
 
-        String url = String.format("/search?text=%s&from=%d&size=%d", text, from, size);
+        String url = String.format(SEARCH_BY_TEXT_PATCH, text, from, size);
 
         return get(url);
     }
 
     public ResponseEntity<Object> addComment(long userId, long itemId, CommentInputDTO inputDTO) {
 
-        String url = String.format("/%d/comment", itemId);
+        String url = String.format(CREATE_COMMON_PATCH, itemId);
 
         return post(url, userId, inputDTO);
     }

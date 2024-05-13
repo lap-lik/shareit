@@ -15,6 +15,11 @@ import ru.practicum.shareit.client.BaseClient;
 public class BookingClient extends BaseClient {
 
     private static final String API_PREFIX = "/bookings";
+    private static final String CREATE_PATCH = "";
+    private static final String UPDATE_PATCH = "/%d?approved=%s";
+    private static final String GET_PATCH = "/%d";
+    private static final String GET_ALL_AT_BOOKER_PATCH = "?state=%s&from=%d&size=%d";
+    private static final String GET_ALL_AT_OWNER_PATCH = "/owner?state=%s&from=%d&size=%d";
 
     @Autowired
     public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -27,30 +32,35 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createBooking(long userId, BookingInputDTO inputDTO) {
-        String url = "";
-        return post(url, userId, inputDTO);
+
+        return post(CREATE_PATCH, userId, inputDTO);
+    }
+
+    public ResponseEntity<Object> updateBooking(long userId, long bookingId, boolean approved) {
+
+        String url = String.format(UPDATE_PATCH, bookingId, approved);
+
+        return patch(url, userId);
     }
 
     public ResponseEntity<Object> getBookingById(long userId, Long bookingId) {
-        String url = "/" + bookingId;
+
+        String url = String.format(GET_PATCH, bookingId);
+
         return get(url, userId);
     }
 
     public ResponseEntity<Object> getAllBookingsAtBooker(long userId, State state, Integer from, Integer size) {
-        String url = String.format("?state=%s&from=%d&size=%d", state.name(), from, size);
+
+        String url = String.format(GET_ALL_AT_BOOKER_PATCH, state.name(), from, size);
 
         return get(url, userId);
     }
 
     public ResponseEntity<Object> getAllBookingsAtOwner(long userId, State state, Integer from, Integer size) {
-        String url = String.format("/owner?state=%s&from=%d&size=%d", state.name(), from, size);
+
+        String url = String.format(GET_ALL_AT_OWNER_PATCH, state.name(), from, size);
 
         return get(url, userId);
-    }
-
-    public ResponseEntity<Object> updateBooking(long userId, long bookingId, boolean approved) {
-        String url = String.format("/%d?approved=%s", bookingId, approved);
-
-        return patch(url, userId);
     }
 }

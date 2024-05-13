@@ -14,6 +14,11 @@ import ru.practicum.shareit.user.dto.UserInputDTO;
 public class UserClient extends BaseClient {
 
     private static final String API_PREFIX = "/users";
+    private static final String CREATE_PATCH = "";
+    private static final String UPDATE_PATCH = "/%d";
+    private static final String GET_PATCH = "/%d";
+    private static final String GET_ALL_PATCH = "";
+    private static final String DELETE_PATCH = "/%d";
 
     @Autowired
     public UserClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -27,35 +32,31 @@ public class UserClient extends BaseClient {
 
     public ResponseEntity<Object> createUser(UserInputDTO inputDTO) {
 
-        String url = "";
-
-        return post(url, inputDTO);
+        return post(CREATE_PATCH, inputDTO);
     }
 
     public ResponseEntity<Object> updateUser(long userId, UserInputDTO inputDTO) {
 
-        String url = String.format("/%d", userId);
+        String url = String.format(UPDATE_PATCH, userId);
 
         return patch(url, inputDTO);
     }
 
     public ResponseEntity<Object> getUserById(long userId) {
 
-        String url = String.format("/%d", userId);
+        String url = String.format(GET_PATCH, userId);
 
         return get(url);
     }
 
     public ResponseEntity<Object> getAllUsers() {
 
-        String url = "";
-
-        return get(url);
+        return get(GET_ALL_PATCH);
     }
 
     public void deleteUserById(long userId) {
 
-        String url = String.format("/%d", userId);
+        String url = String.format(DELETE_PATCH, userId);
 
         delete(url);
     }

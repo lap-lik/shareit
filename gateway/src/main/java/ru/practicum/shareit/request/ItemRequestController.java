@@ -35,12 +35,13 @@ public class ItemRequestController {
         return client.createItemRequest(requesterId, inputDTO);
     }
 
-    @GetMapping
-    public ResponseEntity<Object> getAllByRequesterId(@RequestHeader(REQUEST_HEADER_USER_ID) Long requesterId) {
+    @GetMapping("/{requestId}")
+    public ResponseEntity<Object> getByRequestId(@RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
+                                                 @PathVariable Long requestId) {
 
-        log.info("START endpoint `method:GET /requests` (get all itemRequests by requester id), requester id: {}.", requesterId);
+        log.info("START endpoint `method:GET /requests/:requestId` (get itemRequest by id), itemRequest id: {}.", requestId);
 
-        return client.getAllByRequesterId(requesterId);
+        return client.getByRequestId(userId, requestId);
     }
 
     @GetMapping("/all")
@@ -53,12 +54,11 @@ public class ItemRequestController {
         return client.getAll(userId, from, size);
     }
 
-    @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getByRequestId(@RequestHeader(REQUEST_HEADER_USER_ID) Long userId,
-                                                 @PathVariable Long requestId) {
+    @GetMapping
+    public ResponseEntity<Object> getAllByRequesterId(@RequestHeader(REQUEST_HEADER_USER_ID) Long requesterId) {
 
-        log.info("START endpoint `method:GET /requests/:requestId` (get itemRequest by id), itemRequest id: {}.", requestId);
+        log.info("START endpoint `method:GET /requests` (get all itemRequests by requester id), requester id: {}.", requesterId);
 
-        return client.getByRequestId(userId, requestId);
+        return client.getAllByRequesterId(requesterId);
     }
 }

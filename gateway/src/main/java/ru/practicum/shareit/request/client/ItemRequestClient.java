@@ -14,6 +14,10 @@ import ru.practicum.shareit.request.dto.ItemRequestInputDTO;
 public class ItemRequestClient extends BaseClient {
 
     private static final String API_PREFIX = "/requests";
+    private static final String CREATE_PATCH = "";
+    private static final String GET_PATCH = "/%d";
+    private static final String GET_ALL_PATCH = "/all?from=%d&size=%d";
+    private static final String GET_ALL_BY_REQUESTER_ID_PATCH = "";
 
     @Autowired
     public ItemRequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -28,29 +32,25 @@ public class ItemRequestClient extends BaseClient {
 
     public ResponseEntity<Object> createItemRequest(long requesterId, ItemRequestInputDTO inputDTO) {
 
-        String url = "";
-
-        return post(url, requesterId, inputDTO);
-    }
-
-    public ResponseEntity<Object> getAllByRequesterId(long requesterId) {
-
-        String url = "";
-
-        return get(url, requesterId);
-    }
-
-    public ResponseEntity<Object> getAll(long userId, Integer from, Integer size) {
-
-        String url = String.format("/all?from=%d&size=%d", from, size);
-
-        return get(url, userId);
+        return post(CREATE_PATCH, requesterId, inputDTO);
     }
 
     public ResponseEntity<Object> getByRequestId(long userId, long requestId) {
 
-        String url = "/" + requestId;
+        String url = String.format(GET_PATCH, requestId);
 
         return get(url, userId);
+    }
+
+    public ResponseEntity<Object> getAll(long userId, Integer from, Integer size) {
+
+        String url = String.format(GET_ALL_PATCH, from, size);
+
+        return get(url, userId);
+    }
+
+    public ResponseEntity<Object> getAllByRequesterId(long requesterId) {
+
+        return get(GET_ALL_BY_REQUESTER_ID_PATCH, requesterId);
     }
 }
